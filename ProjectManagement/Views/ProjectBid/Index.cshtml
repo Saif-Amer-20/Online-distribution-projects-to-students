@@ -1,0 +1,146 @@
+﻿@model IEnumerable<ProjectManagement.DataContextModels.Project>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<script type="text/javascript">
+    var grid;
+   
+    $(document).ready(function () {
+        if ($('#projectType').val() != 'Bachelor') {
+            $('#projectSubType').prop("disabled", "disabled");
+        }
+
+       
+         // Load Grid using json object
+        grid = $("#grid").grid({
+            dataKey: "id",
+            uiLibrary: "bootstrap",
+            columns: [
+                { field: "name", title: "Name", sortable: true, width: 40 },
+                { field: "projectType", title: "Type", sortable: true, width: 40 },
+                { field: "isApproved", title: "Approved", sortable: true, width: 20 },
+                { field: "isClosed", title: "Closed", sortable: true, width: 20 },
+                { field: "maxApprovedStudents", title: "Students", sortable: true, width: 30 },
+                { field: "createdBy", title: "Professor", sortable: true, width: 40 },
+                { title: "Details", field: "Details", width: 10, type: "icon", icon: "glyphicon-circle-arrow-right", tooltip: "Details", events: { "click": Details } },
+
+            ],
+            pager: { enable: true, limit: 5, sizes: [2, 5, 10, 20, 40] }
+        });
+
+        if (grid.rows[3].value === 0) {
+            grid.rows[3].value = "No";
+        } else {
+            grid.rows[3].value = "yes";
+        }
+
+
+
+        $('#projectType').change(function () {
+            var ddlsource = "#projectType";
+            var projectType = $(ddlsource).val();
+            if (projectType != 'Bachelor') {
+                $('#projectSubType').prop("disabled", "disabled");
+            }
+            else {
+                $('#projectSubType').removeAttr("disabled");
+            }
+        });
+        
+    });
+
+
+ 
+
+    // Details
+       function Details(e) {
+        var record = JSON.stringify(e.data.record);
+        var items = JSON.parse(record);
+        var id = items.id;
+        var url = '@Url.Action("Details", "ProjectBid")' + '/' + id;
+        window.location.href = url;
+    }
+
+
+
+    // Search
+    function Search() {
+        grid.reload(
+            {
+                projectName: $("#projectName").val(),
+                projectType: $('#projectType').val(),
+                projectSubType: $("#projectSubType").val(),
+                professor: $("#professor").val(),
+                page: 1
+            });
+    }
+
+
+</script>
+<h2>Projects</h2>
+
+<div>
+    <div>
+        <table class="table" style="width:70%">
+            <tr>
+                <td>
+                    <strong>Project Name</strong>
+                </td>
+                <td>
+                    <input id="projectName" name="projectName" class="form-control" />
+                </td>
+                <td>
+                    <strong>Project Type</strong>
+                </td>
+                <td>
+
+                    <select id="projectType" name="projectType" class="form-control">
+                        <option value="Select">Select ...</option>
+                        <option value="Bachelor">Bachelor</option>
+                        <option value="Master">Master</option>
+                        <option value="Doctorate">Doctorate</option>
+                    </select>
+                </td>
+                <td></td>
+
+            </tr>
+            <tr>
+
+                <td>
+                    <strong>Project SubType</strong>
+                </td>
+                <td>
+
+                    <select id="projectSubType" name="projectSubType" class="form-control">
+                        <option value="Select">Select ...</option>
+                        <option value="IT">IT</option>
+                        <option value="CS">CS</option>
+           
+                    </select>
+                </td>
+                <td>
+                    <strong>Professor</strong>
+                </td>
+                <td>
+                    <input class="form-control" id="professor" />
+                </td>
+
+                <td>
+                    <button type="button" id="btnSearch" class="btn btn-default" onclick="Search();">
+                        <span class="glyphicon glyphicon-search"></span>
+                        Search
+                    </button>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<hr />
+<div>
+    <table id="grid" data-source="@Url.Action("GetProjects")"></table>
+</div>
+

@@ -1,0 +1,104 @@
+﻿@model IEnumerable<ProjectManagement.DataContextModels.Project>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<script type="text/javascript">
+    var grid;
+
+    debugger;
+    $(document).ready(function () {
+
+         // Load Grid using json object
+        grid = $("#grid").grid({
+            dataKey: "id",
+            uiLibrary: "bootstrap",
+            columns: [
+                { field: "projectName", title: "Project Name", sortable: true, width: 40 },
+                { field: "studentName", title: "Student Name", sortable: true, width: 40 },
+                { field: "professor", title: "Lecturer Name", sortable: true, width: 30 },
+              
+                
+           
+
+            ],
+            pager: { enable: true, limit: 5, sizes: [2, 5, 10, 20, 40] }
+        });
+
+      
+    });
+
+
+    
+
+    // Search
+    function Search() {
+        grid.reload(
+            {
+                projectName: $("#projectName").val(),
+                projectType: $('#projectType').val(),
+                isApproved: $("#isApproved").prop("checked"),
+                isClosed: $('#isClosed').prop("checked"),
+                page: 1
+            });
+    }
+
+
+</script>
+<h2>Report</h2>
+
+
+<div>
+    <div>
+        <table class="table" style="width:70%">
+            <tr>
+                <td>
+                    <strong>Project Name</strong>
+                </td>
+                <td>
+                    <input id="projectName" name="projectName" class="form-control" />
+                </td>
+                <td>
+                    <strong>Project Type</strong>
+                </td>
+                <td>
+
+                    <select id="projectType" name="projectType" class="form-control">
+                        <option value="Select">Select ...</option>
+                        <option value="Bachelor">Bachelor</option>
+                        <option value="Master">Master</option>
+                        <option value="Doctorate">Doctorate</option>
+                    </select>
+                </td>
+
+
+            </tr>
+            <tr>
+
+                <td>
+                    <input id="isApproved" name="isApproved" type="checkbox" />Approved
+                </td>
+                <td>
+                    <input id="isClosed" name="isClosed" type="checkbox" />Assigned
+                </td>
+                <td></td>
+
+                <td>
+                    <button type="button" id="btnSearch" class="btn btn-default" onclick="Search();">
+                        <span class="glyphicon glyphicon-search"></span>
+                        Search
+                    </button>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<hr />
+<div>
+    <table id="grid" class="table-responsive" data-source="@Url.Action("GetProject")"></table>
+</div>
+
+

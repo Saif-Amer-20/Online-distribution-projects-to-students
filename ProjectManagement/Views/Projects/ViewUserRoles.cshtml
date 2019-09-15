@@ -1,0 +1,77 @@
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ProjectManagement.DataContextModels.ApplicationUser> UserManager
+@{
+    ViewData["Title"] = "User Roles";
+}
+
+<script type="text/javascript">
+    function UnAssignRole(role) {
+
+        if (!confirm('Sure you want to remove role ' + role)) {
+            return;
+        }
+        var id = '@ViewBag.Id';
+         $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                type: 'POST',
+                url: '@Url.Action("UnAssignRole", "Projects")' + '?id=' + id + '&roleName=' + role,
+                async: true,
+                processData: false,
+                cache: false,
+                success: function (data) {
+
+                    alert(data);
+                    window.location.href = '@Url.Action("ViewUserRoles", "Projects")' ;
+                    },
+                error: function (data) {
+                    alert('An error has occured, please return back to system administrator');
+                    }
+
+                });
+
+    }
+</script>
+
+<a asp-action="ManageUsers" asp-controller="Projects">Back to List</a>
+
+@{
+    if (!string.IsNullOrEmpty(ViewBag.Id))
+    {
+        var id = (string)ViewBag.Id;
+        var appUser = UserManager.Users.FirstOrDefault(u => u.Id == id);
+        if (appUser != null)
+        {
+            <h2>[@appUser.UserName] Roles</h2>
+
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var role in await UserManager.GetRolesAsync(await UserManager.FindByNameAsync(appUser.UserName)))
+                    {
+                        <tr>
+                            <td>
+                                <strong>@role</strong>
+                            </td>
+                            <td>
+                                <button id="btnUnAssignRole" name="btnUnAssignRole" class="btn btn-default" onclick="UnAssignRole('@role');">
+                                    Remove
+                                    <span class="glyphicon glyphicon-trash">
+                                    </span>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+        }
+
+    }
+}
+

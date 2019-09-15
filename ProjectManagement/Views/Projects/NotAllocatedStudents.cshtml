@@ -1,0 +1,33 @@
+﻿
+@{
+    ViewData["Title"] = "NotAllocatedStudents";
+}
+<script type="text/javascript">
+    var gridStudentChoices;
+    $(document).ready(function () {
+        gridStudentChoices = $("#gridStudentChoices").grid({
+            dataKey: "id",
+            uiLibrary: "bootstrap",
+            columns: [
+                { field: "firstName", title: "First Name", sortable: true, width: 40 },
+                { field: "lastName", title: "Last Name", sortable: true, width: 40 },
+                { field: "phoneNumber", title: "Phone Number", sortable: true, width: 40 },
+                { field: "email", title: "Email", sortable: true, width: 40 },
+                { field: "userName", title: "User Name", sortable: true, width: 40 },
+            ],
+            pager: { enable: true, limit: 5, sizes: [2, 5, 10, 20, 40] }
+        });
+    });
+
+
+
+
+</script>
+<h2>Not Allocated Students</h2>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Not Allocated Students</div>
+    <div class="panel-body">
+        <table id="gridStudentChoices" data-source="@Url.Action("GetNotAllocatedStudents")"></table>
+    </div>
+</div>

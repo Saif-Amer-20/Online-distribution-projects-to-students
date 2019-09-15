@@ -1,0 +1,56 @@
+﻿@{
+    ViewData["Title"] = "My Projects";
+}
+<script type="text/javascript">
+    var gridStudentChoices, gridStudentApproved;
+    $(document).ready(function () {
+
+         // Load Grid using json object
+        gridStudentChoices = $("#gridStudentChoices").grid({
+            dataKey: "id",
+            uiLibrary: "bootstrap",
+            columns: [
+                { field: "projectName", title: "Project", sortable: true, width: 40 },
+                { field: "professor", title: "Professor", sortable: true, width: 40 },
+                { field: "createdOn", title: "CreatedOn", sortable: true, width: 40 },
+                { field: "approvalRejectionDate", title: "Approval | Rejection Date", sortable: true, width: 40 },
+                { field: "approvalSummary", title: "Approved", sortable: true, width: 20 },
+
+            ],
+            pager: { enable: true, limit: 5, sizes: [2, 5, 10, 20, 40] }
+        });
+
+        // Load Grid using json object
+        gridStudentApproved = $("#gridStudentApproved").grid({
+            dataKey: "id",
+            uiLibrary: "bootstrap",
+            columns: [
+                { field: "projectName", title: "Project", sortable: true, width: 40 },
+                { field: "professor", title: "Professor", sortable: true, width: 40 },
+                { field: "createdOn", title: "CreatedOn", sortable: true, width: 40 },
+            ],
+            pager: { enable: true, limit: 5, sizes: [2, 5, 10, 20, 40] }
+        });
+
+    });
+
+  
+
+
+
+</script>
+<h2>My Projects</h2>
+<div class="panel panel-default">
+    <div class="panel-heading">Project Bids</div>
+    <div class="panel-body">
+        <table id="gridStudentChoices" data-source="@Url.Action("GetProjects", "ProjectStudentChoices", new { studentId =  ViewBag.StudentId })"></table>
+    </div>
+</div>
+<hr />
+<div class="panel panel-default">
+    <div class="panel-heading">Approved Projects</div>
+    <div class="panel-body">
+        <table id="gridStudentApproved" data-source="@Url.Action("GetProjects", "ProjectStudents", new { studentId =  ViewBag.StudentId })"></table>
+    </div>
+</div>
+

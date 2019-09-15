@@ -1,0 +1,112 @@
+
+@{
+    ViewData["Title"] = "ManageUsers";
+}
+
+
+
+<script type="text/javascript">
+    var grid;
+
+
+    $(document).ready(function () {
+
+         // Load Grid using json object
+        grid = $("#grid").grid({
+            dataKey: "id",
+            uiLibrary: "bootstrap",
+            columns: [
+                { field: "email", title: "Email", sortable: true, width: 60, sortable: true },
+                { field: "userName", title: "User Name", sortable: true, width: 40, sortable: true },
+
+
+                { title: "Roles", field: "Assign", width: 10, type: "icon", icon: "glyphicon-tasks", tooltip: "Assign Roles", events: { "click": Assign } },
+                { title: "Remove", css: ".glyphicon-trash", field: "Delete", width: 10, type: "icon", icon: "glyphicon-remove", tooltip: "Delete", events: { "click": Remove } },
+
+            ],
+            pager: { enable: true, limit: 5, sizes: [2, 5, 10, 20, 40] }
+        });
+
+        // Delete Post
+        $('#Delete').click(function (e) {
+
+            e.preventDefault();
+            var id = $('#item-to-delete').val();
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                type: 'POST',
+                url: '@Url.Action("DeleteUser", "Projects")' + '/' + id,
+                async: true,
+                processData: false,
+                cache: false,
+                success: function (data) {
+                    alert('User is removed successfully.');
+                    $('#deleteModal').modal('hide');
+                        grid.reload();
+                    },
+                error: function (data) {
+
+                    alert('An error has occured while processing your request, please return back to system admin.')
+                    }
+
+                });
+        });
+    });
+
+
+
+
+    // Delete Get
+    function Remove(e) {
+
+        var record = JSON.stringify(e.data.record);
+        var items = JSON.parse(record);
+        var id = items.id;
+        $('#item-to-delete').val(id);
+        $('#deleteModal').modal('show');
+    }
+    function Assign(e)
+    {
+        var record = JSON.stringify(e.data.record);
+        var items = JSON.parse(record);
+        var id = items.id;
+        var url = '@Url.Action("ViewUserRoles", "Projects")' + '/' + id;
+        window.location.href = url;
+    }
+
+
+</script>
+
+<h2>Manage Users</h2>
+
+<p>
+    <a asp-action="AssignRole" asp-controller="Projects">Assign Roles</a>
+</p>
+
+
+
+<hr />
+<div>
+    <table id="grid" data-source="@Url.Action("GetUsers")"></table>
+</div>
+
+
+<input type="hidden" id="item-to-delete" value="-1" />
+<div id="deleteModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Remove User</h4>
+            </div>
+            <div class="modal-body">
+                <p>Sure you want to remove the selected User ?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" value="Delete" class="btn btn-danger" name="Delete" id="Delete" data-placement="top" title="Submit Removing">Remove</button>
+            </div>
+        </div>
+
+    </div>
+</div>

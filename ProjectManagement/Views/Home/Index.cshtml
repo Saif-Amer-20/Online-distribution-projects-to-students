@@ -1,0 +1,56 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<ProjectManagement.DataContextModels.ApplicationUser> _UserManager
+@inject SignInManager<ProjectManagement.DataContextModels.ApplicationUser> _SignInManager
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+
+
+
+
+
+
+
+<img src="~/images/Logo2.png" alt="Snow" style="width: 14%; height: 30%; margin-top: 4%; margin-right: 11%;">
+
+<img src="~/images/Logo3.jpg" alt="Mountains" style="width: 14%; height: 10%;margin-left: 60%;margin-top: 4%">
+
+
+
+<div style="position: inherit; align-Items: center; display: flex; flex-Direction: row; flex: 2; ">
+
+
+    <div style="flex: 1; align-self: center; padding-right: 50px; max-Height: 500px; top: 200px; width: 30%;">
+
+        <label>Our Projects Platform</label>
+
+        <div>
+            <p>
+                This platform aims to facilitate the process of establishing graduation projects and distributing them to students
+                electronically, in application of the e-governance initiative, which is being implemented by the Iraqi Council of Ministers.
+                <br />
+                @if (!_SignInManager.IsSignedIn(User))
+                {
+                    if (!User.IsInRole("SystemAdmin") || !User.IsInRole("Professor") || !User.IsInRole("Student"))
+                    {
+                        <br />
+                        <b>If you don't have account please register form here</b>
+                        <br />
+                        <br />
+                        <a href="./Identity/Account/Register" class="btn btn-primary">Register as a new user</a>
+                    }
+                }
+            </p>
+
+
+        </div>
+
+
+
+    </div>
+    <div dir="rtl" style="width: 40%; padding-left: 60px">
+        <img style="padding: 60px 0px; flex: 1;" src="images/logo.svg" />
+    </div>
+</div>

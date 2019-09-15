@@ -1,0 +1,184 @@
+﻿@model IEnumerable<ProjectManagement.DataContextModels.Project>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<script type="text/javascript">
+    var grid;
+
+    debugger;
+    $(document).ready(function () {
+       
+         // Load Grid using json object
+        grid = $("#grid").grid({
+            dataKey: "id",
+            uiLibrary: "bootstrap",
+            columns: [
+                { field: "name", title: "Project Name", sortable: true, width: 40 },
+                { field: "projectType", title: "Project Type", sortable: true, width: 40 },
+                { field: "isApproved", title: "Approved", sortable: true, width: 20, editor: false },
+                { field: "isClosed", title: "Assigned", sortable: true, width: 20, editor: false },
+                { field: "maxApprovedStudents", title: "Students Number", sortable: true, width: 30 },
+                { field: "createdBy", title: "Supervisor", sortable: true, width: 40 },
+                { title: "Edit", field: "Edit", width: 10, type: "icon", icon: "glyphicon-pencil", tooltip: "Edit", events: { "click": Edit } },
+                { title: "Details", field: "Details", width: 10, type: "icon", icon: "glyphicon-circle-arrow-right", tooltip: "Details", events: { "click": Details } },
+                { title: "Remove", css: ".glyphicon-trash", field: "Delete", width: 10, type: "icon", icon: "glyphicon-remove", tooltip: "Delete", events: { "click": Remove } },
+
+            ],
+            pager: { enable: true, limit: 5, sizes: [2, 5, 10, 20, 40] }
+        });
+
+        // Delete Post
+        $('#Delete').click(function (e) {
+
+            e.preventDefault();
+            var id = $('#item-to-delete').val();
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                type: 'POST',
+                url: '@Url.Action("Delete", "Projects")' + '/' + id,
+                async: true,
+                processData: false,
+                cache: false,
+                success: function (data) {
+                    $('#deleteModal').modal('hide');
+
+                    if (data.includes('Warning')) {
+                        $('#divWarning').text(data);
+                        $('#warningModal').modal('show');
+                    }
+                    else if (data.includes('Success')) {
+                        $('#divSuccess').text(data);
+                        $('#successModal').modal('show');
+                        Search();
+                    }
+                    },
+                error: function (data) {
+                    $('#deleteModal').modal('hide');
+                    $('#errorModal').modal('show');
+                    }
+                });
+        });
+    });
+
+
+    // Edit
+    function Edit(e) {
+        var record = JSON.stringify(e.data.record);
+        var items = JSON.parse(record);
+        var id = items.id;
+        var url = '@Url.Action("Edit", "Projects")' + '/' + id;
+        window.location.href = url;
+    }
+
+    // Details
+       function Details(e) {
+        var record = JSON.stringify(e.data.record);
+        var items = JSON.parse(record);
+        var id = items.id;
+        var url = '@Url.Action("Details", "Projects")' + '/' + id;
+        window.location.href = url;
+    }
+
+
+    // Delete Get
+    function Remove(e) {
+        var record = JSON.stringify(e.data.record);
+        var items = JSON.parse(record);
+        var id = items.id;
+        $('#item-to-delete').val(id);
+        $('#deleteModal').modal('show');
+    }
+
+    // Search
+    function Search() {
+        grid.reload(
+            {
+                projectName: $("#projectName").val(),
+                projectType: $('#projectType').val(),
+                isApproved: $("#isApproved").prop("checked"),
+                isClosed: $('#isClosed').prop("checked"),
+                page: 1
+            });
+    }
+
+    
+</script>
+<h2>Projects</h2>
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+<div>
+    <div>
+        <table class="table" style="width:70%">
+            <tr>
+                <td>
+                    <strong>Project Name</strong>
+                </td>
+                <td>
+                    <input id="projectName" name="projectName" class="form-control" />
+                </td>
+                <td>
+                    <strong>Project Type</strong>
+                </td>
+                <td>
+                 
+                    <select id="projectType" name="projectType" class="form-control">
+                        <option value="Select">Select ...</option>
+                        <option value="Bachelor">Bachelor</option>
+                        <option value="Master">Master</option>
+                        <option value="Doctorate">Doctorate</option>
+                    </select>
+                </td>
+                
+
+            </tr>
+            <tr>
+
+                <td>
+                    <input id="isApproved" name="isApproved" type="checkbox" />Approved
+                </td>
+                <td>
+                    <input id="isClosed" name="isClosed" type="checkbox" />Assigned
+                </td>
+                <td></td>
+              
+                <td>
+                    <button type="button" id="btnSearch" class="btn btn-default" onclick="Search();">
+                        <span class="glyphicon glyphicon-search"></span>
+                        Search
+                    </button>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<hr />
+<div>
+    <table id="grid" class="table-responsive" data-source="@Url.Action("GetProjects")"></table>
+</div>
+
+
+<input type="hidden" id="item-to-delete" value="-1" />
+<div id="deleteModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Remove Project</h4>
+            </div>
+            <div class="modal-dialog">
+                <p>Sure you want to remove the selected project ?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" value="Delete" class="btn btn-danger" name="Delete" id="Delete" data-placement="top" title="Submit Removing">Remove</button>
+            </div>
+        </div>
+
+    </div>
+</div>

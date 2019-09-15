@@ -1,0 +1,204 @@
+﻿@model ProjectManagement.DataContextModels.Project
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@{
+    ViewData["Title"] = "Details";
+}
+<script type="text/javascript">
+    var gridStudentChoices, gridStudentApproved;
+    $(document).ready(function () {
+
+         // Load Grid using json object
+        gridStudentChoices = $("#gridStudentChoices").grid({
+            dataKey: "id",
+            uiLibrary: "bootstrap",
+            columns: [
+                { field: "studentName", title: "Student Name", sortable: true, width: 40 },
+                { field: "createdOn", title: "CreatedOn", sortable: true, width: 40 },
+                { field: "approvalRejectionDate", title: "Approval | Rejection Date", sortable: true, width: 40, format: 'YYYY-MM-dd'},
+                { field: "isApproved", title: "Assigned", sortable: true, width: 20 },
+
+            ],
+            pager: { enable: true, limit: 5, sizes: [2, 5, 10, 20, 40] }
+        });
+
+        // Load Grid using json object
+        gridStudentApproved = $("#gridStudentApproved").grid({
+            dataKey: "id",
+            uiLibrary: "bootstrap",
+            columns: [
+                { field: "studentName", title: "Student Name", sortable: true, width: 40 },
+                { field: "createdOn", title: "CreatedOn", sortable: true, width: 40 },
+            ],
+            pager: { enable: true, limit: 5, sizes: [2, 5, 10, 20, 40] }
+        });
+
+    });
+
+    function Approve(id) {
+         $.ajax({
+                 type: 'POST',
+                 url: '@Url.Action("Approve", "Projects")',
+                 data: { 'projectId': id },
+                success: function (data) {
+                    DisplaySuccessMessage('Approved');
+                    $("#btnApprove").attr("disabled", true);
+                    $("#btnReject").attr("disabled", true);
+                    },
+                error: function (data) {
+                    DisplayErrorMessage('');
+                    }
+                });
+    }
+
+    function Reject(id) {
+         $.ajax({
+                 type: 'POST',
+                 url: '@Url.Action("Reject", "Projects")',
+                 data: { 'projectId': id },
+                success: function (data) {
+                    DisplaySuccessMessage('Rejected');
+                    $("#btnApprove").attr("disabled", true);
+                    $("#btnReject").attr("disabled", true);
+                    },
+                error: function (data) {
+                    DisplayErrorMessage('');
+                    }
+                });
+    }
+
+      function Complete(id) {
+         $.ajax({
+                 type: 'POST',
+                 url: '@Url.Action("Complete", "Projects")',
+                 data: { 'projectId': id },
+                success: function (data) {
+                    DisplaySuccessMessage('Rejected');
+                    $("#btnComplete").attr("disabled", true);
+                    },
+                error: function (data) {
+                    DisplayErrorMessage('');
+                    }
+                });
+    }
+
+</script>
+<h2>Details</h2>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Project Info
+
+        @{
+            if (User.IsInRole("SystemAdmin"))
+            {
+
+                if (Model.IsApproved == null)
+                {
+                    <button class="btn btn-success" id="btnApprove" onclick="Approve('@Model.Id')">
+                        Approve
+                    </button>
+                    <button class="btn btn-danger" id="btnReject" onclick="Reject('@Model.Id')">
+                        Reject
+                    </button>
+                }
+
+                if (Model.IsApproved != null && !Model.IsClosed)
+                {
+                    <button class="btn btn-success" id="btnComplete" onclick="Complete('@Model.Id')">
+                        Complete
+                    </button>
+                }
+            }
+
+        }
+
+    </div>
+    <div class="panel-body">
+        <table class="table table-bordered table-striped">
+            <tr>
+                <td style="font-weight: bold; width: 20%;">
+                    @Html.DisplayNameFor(model => model.Name)
+                </td>
+                <td >
+                    @Html.DisplayFor(model => model.Name)
+                </td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold">
+                    @Html.DisplayNameFor(model => model.ProjectTools)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.ProjectTools)
+                </td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold">
+                    @Html.DisplayNameFor(model => model.ProjectType)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.ProjectType)
+                </td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold">
+                    @Html.DisplayNameFor(model => model.IsApproved)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.IsApproved)
+                </td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold">
+                    @Html.DisplayNameFor(model => model.ApprovalRejectionDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.ApprovalRejectionDate)
+                </td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold">
+                    @Html.DisplayNameFor(model => model.IsClosed)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.IsClosed)
+                    
+                </td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold">
+                    @Html.DisplayNameFor(model => model.MaxApprovedStudents)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.MaxApprovedStudents)
+                </td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold">
+                    @Html.DisplayNameFor(model => model.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.Description)
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">Project Bids</div>
+    <div class="panel-body">
+        <table id="gridStudentChoices" data-source="@Url.Action("GetProjects", "ProjectStudentChoices", new { projectId = Model.Id })"></table>
+    </div>
+</div>
+<hr />
+<div class="panel panel-default">
+    <div class="panel-heading">Approved Students</div>
+    <div class="panel-body">
+        <table id="gridStudentApproved" data-source="@Url.Action("GetProjects", "ProjectStudents", new { projectId = Model.Id })"></table>
+    </div>
+</div>
+
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
