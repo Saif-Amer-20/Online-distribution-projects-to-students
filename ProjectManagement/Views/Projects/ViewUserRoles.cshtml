@@ -33,7 +33,7 @@
     }
 </script>
 
-<a asp-action="ManageUsers" asp-controller="Projects">Back to List</a>
+
 
 @{
     if (!string.IsNullOrEmpty(ViewBag.Id))
@@ -69,7 +69,7 @@
                 </tbody>
 
             </table>
-
+            <a asp-action="ManageUsers" asp-controller="Projects" class="btn btn-danger">Back to List</a>
         }
 
     }

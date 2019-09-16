@@ -56,23 +56,7 @@
                         <input asp-for="Input.StudentAvgPreviousYear" class="form-control" />
                         <span asp-validation-for="Input.StudentAvgPreviousYear" class="text-danger"></span>
                     </div>
-                }
-            }
 
-            @{
-                if (User.IsInRole("Professor")|| User.IsInRole("SystemAdmin"))
-                {
-                    <div class="form-group">
-                        <label asp-for="Input.ProfessorSpecialization"></label>
-                        <input asp-for="Input.ProfessorSpecialization" class="form-control" />
-                        <span asp-validation-for="Input.ProfessorSpecialization" class="text-danger"></span>
-                    </div>
-                }
-            }
-
-            @{
-                if (User.IsInRole("Student"))
-                {
                     <div class="form-group">
                         <label asp-for="Input.IsMaster"></label>
                         <input asp-for="Input.IsMaster"  />
@@ -95,6 +79,19 @@
                     </div>
                 }
             }
+
+            @{
+                if (User.IsInRole("Professor")|| User.IsInRole("SystemAdmin"))
+                {
+                    <div class="form-group">
+                        <label asp-for="Input.ProfessorSpecialization"></label>
+                        <input asp-for="Input.ProfessorSpecialization" class="form-control" />
+                        <span asp-validation-for="Input.ProfessorSpecialization" class="text-danger"></span>
+                    </div>
+                }
+            }
+
+           
             <button id="update-profile-button" type="submit" class="btn btn-primary">Save</button>
         </form>
     </div>
