@@ -23,6 +23,31 @@
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
         <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
     </environment>
+    <environment include="Staging,Production">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/css/site.css" />
+        <link href="~/lib/bootstrap/dist/css/grid-0.4.3.css" rel="stylesheet" />
+    </environment>
+    <environment exclude="Staging,Production">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+    </environment>
+    <environment include="Development">
+        <link href="~/lib/bootstrap/css/bootstrap.css" rel="stylesheet" />
+    </environment>
+
+    <environment exclude="Development">
+        <link rel="stylesheet"
+              integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+              crossorigin="anonymous"
+              href="https://sstackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position"
+              asp-fallback-test-value="absolute"
+              asp-suppress-fallback-integrity="true" />
+    </environment>
     <script type="text/javascript">
         function DisplaySuccessMessage(message) {
             $('#divSuccess').text(message);
@@ -59,17 +84,17 @@
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
-                        <a asp-area="" asp-controller="Projects" asp-action="Index" class="navbar-brand">Our Project Platform</a>
+                        <a asp-area="" asp-controller="Projects" asp-action="Index" class="navbar-brand"style="color: aliceblue;">Our Project Platform</a>
                     </div>
                 }
                 else
                 {
-                    <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">Our Project Platform</a>
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand"style="color: aliceblue;">Our Project Platform</a>
                 }
             }
             else
             {
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">Our Project Platform</a>
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand" style="color: aliceblue;">Our Project Platform</a>
             }
 
             <div class="navbar-collapse collapse">
@@ -78,26 +103,23 @@
                     {
                         if (User.IsInRole("SystemAdmin"))
                         {
-                            <li><a asp-area="" asp-controller="Projects" asp-action="Index">Projects</a></li>
-                            <li><a asp-area="" asp-controller="Projects" asp-action="ManageUsers">Users</a></li>
-                            <li><a asp-area="" asp-controller="Projects" asp-action="NotAllocatedStudents">Not Allocated Students</a></li>
-                            <li><a asp-area="" asp-controller="Projects" asp-action="Reports">Reports</a></li>
-                            <label style="margin-top: 15px; color: aliceblue;" dir="rtl">System Admin</label>
+                            <li><a asp-area="" asp-controller="Projects" asp-action="Index"style="color: aliceblue;">Projects</a></li>
+                            <li><a asp-area="" asp-controller="Projects" asp-action="ManageUsers"style="color: aliceblue;">Users</a></li>
+                            <li><a asp-area="" asp-controller="Projects" asp-action="NotAllocatedStudents"style="color: aliceblue;">Not Allocated Students</a></li>
+                            <li><a asp-area="" asp-controller="Projects" asp-action="Reports"style="color: aliceblue;">Reports</a></li>
                         }
                         else if (User.IsInRole("Professor"))
                         {
-                            <li><a asp-area="" asp-controller="Projects" asp-action="Index">Projects</a></li>
+                            <li><a asp-area="" asp-controller="Projects" asp-action="Index"style="color: aliceblue;">Projects</a></li>
 
-                            <label style="margin-top: 15px; color: aliceblue;" dir="rtl">Lecturer</label>
 
                         }
                         else if (User.IsInRole("Student"))
                         {
 
 
-                            <li><a asp-area="" asp-controller="ProjectBid" asp-action="Index">Available Projects</a></li>
-                            <li><a asp-area="" asp-controller="ProjectBid" asp-action="MyProjects">My Projects</a></li>
-                            <label style="margin-top: 15px; color: aliceblue;" dir="rtl">Student</label>
+                            <li><a asp-area="" asp-controller="ProjectBid" asp-action="Index"style="color: aliceblue;">Available Projects</a></li>
+                            <li><a asp-area="" asp-controller="ProjectBid" asp-action="MyProjects"style="color: aliceblue;">My Projects</a></li>
 
                         }
                         else
@@ -110,8 +132,9 @@
                 <partial name="_LoginPartial" />
             </div>
         </div>
+        
     </nav>
-
+<div><br/></div>
     <partial name="_CookieConsentPartial" />
 
     <div class="container body-content">

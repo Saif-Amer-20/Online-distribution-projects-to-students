@@ -52,6 +52,7 @@ namespace ProjectManagement.Controllers
 
         public List<Project> GetJsonData(int? page, int? limit, string sortBy, string direction, out int total, string projectName = null, string projectType = null, bool? isApproved = null, bool? isClosed = null)
         {
+           
             var records = _context.Projects.Include(p => p.Creator).Include(p => p.Updater)
                 .Select(p => new Project()
                 {

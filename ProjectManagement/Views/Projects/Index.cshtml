@@ -1,4 +1,5 @@
-﻿@model IEnumerable<ProjectManagement.DataContextModels.Project>
+﻿@using Microsoft.CodeAnalysis
+@model IEnumerable<ProjectManagement.DataContextModels.Project>
 
 @{
     ViewData["Title"] = "Index";
@@ -8,7 +9,6 @@
 <script type="text/javascript">
     var grid;
 
-    debugger;
     $(document).ready(function () {
        
          // Load Grid using json object
@@ -25,11 +25,10 @@
                 { title: "Edit", field: "Edit", width: 10, type: "icon", icon: "glyphicon-pencil", tooltip: "Edit", events: { "click": Edit } },
                 { title: "Details", field: "Details", width: 10, type: "icon", icon: "glyphicon-circle-arrow-right", tooltip: "Details", events: { "click": Details } },
                 { title: "Remove", css: ".glyphicon-trash", field: "Delete", width: 10, type: "icon", icon: "glyphicon-remove", tooltip: "Delete", events: { "click": Remove } },
-
             ],
             pager: { enable: true, limit: 5, sizes: [2, 5, 10, 20, 40] }
         });
-
+       
         // Delete Post
         $('#Delete').click(function (e) {
 
@@ -109,7 +108,7 @@
 </script>
 <h2>Projects</h2>
 <p>
-    <a asp-action="Create" class="btn btn-primary">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">New</a>
 </p>
 
 <div>
@@ -160,7 +159,8 @@
 
 <hr />
 <div>
-    <table id="grid" class="table-responsive" data-source="@Url.Action("GetProjects")"></table>
+    
+    <table id="grid"  data-source="@Url.Action("GetProjects")"></table>
 </div>
 
 
