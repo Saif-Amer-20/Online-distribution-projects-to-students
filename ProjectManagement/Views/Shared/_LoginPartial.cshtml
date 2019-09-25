@@ -25,6 +25,11 @@
                         <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)! <br />Student</a>
 
                     }
+                    else
+                    {
+                        <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
+
+                    }
                 }
             </li>
             <li>

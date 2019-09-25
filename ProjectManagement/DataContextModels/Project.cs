@@ -11,7 +11,7 @@ namespace ProjectManagement.DataContextModels
 
         public int Id { get; set; }
         [Required]
-        [Display(Name = "Project Name")]
+        [Display(Name = "Project Title")]
         public string Name { get; set; }
         [Required]
         [Display(Name = "Project Description")]

@@ -48,6 +48,8 @@
               asp-fallback-test-value="absolute"
               asp-suppress-fallback-integrity="true" />
     </environment>
+    
+    
     <script type="text/javascript">
         function DisplaySuccessMessage(message) {
             $('#divSuccess').text(message);
@@ -105,7 +107,7 @@
                         {
                             <li><a asp-area="" asp-controller="Projects" asp-action="Index"style="color: aliceblue;">Projects</a></li>
                             <li><a asp-area="" asp-controller="Projects" asp-action="ManageUsers"style="color: aliceblue;">Users</a></li>
-                            <li><a asp-area="" asp-controller="Projects" asp-action="NotAllocatedStudents"style="color: aliceblue;">Not Allocated Students</a></li>
+                            <li><a asp-area="" asp-controller="Projects" asp-action="NotAllocatedStudents"style="color: aliceblue;">UnAllocated Students</a></li>
                             <li><a asp-area="" asp-controller="Projects" asp-action="Reports"style="color: aliceblue;">Reports</a></li>
                         }
                         else if (User.IsInRole("Professor"))
