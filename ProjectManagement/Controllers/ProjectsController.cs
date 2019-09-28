@@ -299,7 +299,7 @@ namespace ProjectManagement.Controllers
                 .Include(p => p.ApplicationUser).Where(p => !_context.ProjectStudents.Select(c => c.ApplicationUserId).Contains(p.ApplicationUserId))
                 .Where(p => p.ProjectId == projectId)
                 .OrderByDescending(p => p.ApplicationUser.StudentAvgPreviousYear).Take(project.MaxApprovedStudents);
-
+            selectedStudents.OrderBy(p => p.Sequence);
             var emailAddresses = new List<EmailAddress>();
             var approvedStudents = new List<ProjectStudent>();
             foreach (var item in selectedStudents)
