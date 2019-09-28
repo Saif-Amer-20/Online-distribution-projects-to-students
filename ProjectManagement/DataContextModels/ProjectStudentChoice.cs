@@ -31,7 +31,7 @@ namespace ProjectManagement.DataContextModels
         [NotMapped]
         public string ApprovalSummary { get; set; }
 
-        public int Sequence { get; set; }
+        public int Sequence { get; set; } = 0;
         public virtual Project Project { get; set; }
         public virtual ApplicationUser ApplicationUser { get; set; }
     }

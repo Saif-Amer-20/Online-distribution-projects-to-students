@@ -78,7 +78,7 @@
         <div class="container">
             @if (_SignInManager.IsSignedIn(User))
             {
-                if (User.IsInRole("SystemAdmin") || User.IsInRole("SystemAdmin") || User.IsInRole("Student"))
+                if (User.IsInRole("SystemAdmin") || User.IsInRole("SystemAdmin"))
                 {
                     <div class="navbar-header">
                         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -90,9 +90,14 @@
                         <a asp-area="" asp-controller="Projects"  asp-action="Index" class="navbar-brand"style="color: aliceblue;">Our Project Platform</a>
                     </div>
                 }
+                else if(User.IsInRole("Student"))
+                {
+                    <a asp-area="" asp-controller="ProjectBid" asp-action="Index" class="navbar-brand"style="color: aliceblue;">Our Project Platform</a>
+                }
                 else
                 {
                     <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand"style="color: aliceblue;">Our Project Platform</a>
+
                 }
             }
             else

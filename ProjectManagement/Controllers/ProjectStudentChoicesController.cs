@@ -147,7 +147,7 @@ namespace ProjectManagement.Controllers
                     return Json("Error: You have have applied on this project previously");
                 }
 
-                var x = _context.ProjectStudentChoices.Include(p => p.ApplicationUser).Where(p => p.ApplicationUserId == UserIdentity.Id).Select(p => p.Sequence).SingleOrDefault();
+                var x = await _context.ProjectStudentChoices.Where(p => p.ApplicationUserId == UserIdentity.Id).Select(p => p.Sequence).LastOrDefaultAsync();
                 var i = 0;
                 if (x == 0)
                 {
