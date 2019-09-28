@@ -24,7 +24,7 @@
                 { field: "isApproved", title: "Approved", sortable: true, width: 20 },
                 { field: "isClosed", title: "Closed", sortable: true, width: 20 },
                 { field: "maxApprovedStudents", title: "Students", sortable: true, width: 30 },
-                { field: "createdBy", title: "Professor", sortable: true, width: 40 },
+                { field: "createdBy", title: "Supervisor", sortable: true, width: 40 },
                 { title: "Details", field: "Details", width: 10, type: "icon", icon: "glyphicon-circle-arrow-right", tooltip: "Details", events: { "click": Details } },
 
             ],
@@ -87,7 +87,7 @@
         <table class="table" style="width:70%">
             <tr>
                 <td>
-                    <strong>Project Name</strong>
+                    <strong>Project Title</strong>
                 </td>
                 <td>
                     <input id="projectName" name="projectName" class="form-control" />
@@ -122,7 +122,7 @@
                     </select>
                 </td>
                 <td>
-                    <strong>Professor</strong>
+                    <strong>Supervisor</strong>
                 </td>
                 <td>
                     <input class="form-control" id="professor" />

@@ -14,13 +14,13 @@
             uiLibrary: "bootstrap",
             columns: [
                 { field: "studentName", title: "Student Name", sortable: true, width: 40 },
-                { field: "createdOn", title: "CreatedOn", sortable: true, width: 40 },
+                { field: "createdOn",  title: "CreatedOn", sortable: true, width: 40, format: 'YYYY-MM-dd'},
                 { field: "approvalRejectionDate", title: "Approval | Rejection Date", sortable: true, width: 40, format: 'YYYY-MM-dd'},
-                { field: "isApproved", title: "Assigned", sortable: true, width: 20 },
+                { field: "approvalSummary", title: "Assigned", sortable: true, width: 20 },
 
             ],
             pager: { enable: true, limit: 5, sizes: [2, 5, 10, 20, 40] }
-        });
+        }) ;
 
         // Load Grid using json object
         gridStudentApproved = $("#gridStudentApproved").grid({
@@ -73,7 +73,7 @@
                  url: '@Url.Action("Complete", "Projects")',
                  data: { 'projectId': id },
                 success: function (data) {
-                    DisplaySuccessMessage('Rejected');
+                    DisplaySuccessMessage('Approved');
                     $("#btnComplete").attr("disabled", true);
                     },
                 error: function (data) {
@@ -144,7 +144,15 @@
                     @Html.DisplayNameFor(model => model.IsApproved)
                 </td>
                 <td>
-                    @Html.DisplayFor(model => model.IsApproved)
+                    @if (Model.IsApproved == false)
+                    {
+                        <text>No</text>
+                    }
+                    else
+                    {
+                        <text>Yes</text>
+                    }
+                    @*@Html.DisplayFor(model => model.IsApproved)*@
                 </td>
             </tr>
             <tr>
@@ -160,8 +168,16 @@
                     @Html.DisplayNameFor(model => model.IsClosed)
                 </td>
                 <td>
-                    @Html.DisplayFor(model => model.IsClosed)
-                    
+                    @if (Model.IsClosed == false)
+                    {
+                        <text>No</text>
+                    }
+                    else
+                    {
+                        <text>Yes</text>
+                    }
+                    @*@Html.DisplayFor(model => model.IsClosed)*@
+
                 </td>
             </tr>
             <tr>

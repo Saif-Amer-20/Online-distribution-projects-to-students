@@ -62,8 +62,14 @@
 
             <div class="form-group">
                 <label asp-for="MaxApprovedStudents" class="control-label"></label>
-                <input asp-for="MaxApprovedStudents" class="form-control" />
-                <span asp-validation-for="MaxApprovedStudents" class="text-danger"></span>
+                <select asp-for="MaxApprovedStudents" class="form-control">
+                    <option value=1>1</option>
+                    <option value=2>2</option>
+                    <option value=3>3</option>
+                    <option value=4>4</option>
+                </select>
+
+                <span asp-validation-for="ProjectType" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>

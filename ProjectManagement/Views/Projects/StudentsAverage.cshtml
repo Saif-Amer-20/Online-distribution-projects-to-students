@@ -1,0 +1,63 @@
+﻿@model IEnumerable<ProjectManagement.DataContextModels.ApplicationUser>
+
+@{
+    ViewBag.Title = "Edit Students Average";
+    Layout = "_Layout";
+}
+
+
+<script type="text/javascript">
+    var grid;
+
+    debugger;
+    $(document).ready(function () {
+
+        // Load Grid using json object
+        grid = $("#grid").grid({
+            dataKey: "id",
+            uiLibrary: "bootstrap",
+            columns: [
+                { field: "firstName", title: "First Name", sortable: true, width: 40 },
+                { field: "lastName", title: "Last Name", sortable: true, width: 40 },
+                { field: "studentAvgPreviousYear", title: "student Average Previous Year", sortable: true, width: 30 },
+                { title: "Edit", field: "Edit", width: 10, type: "icon", icon: "glyphicon-pencil", tooltip: "Edit", events: { "click": Edit } },
+
+
+
+
+            ],
+            pager: { enable: true, limit: 5, sizes: [2, 5, 10, 20, 40] }
+        });
+
+
+    });
+
+    // Edit
+    function Edit(e) {
+        var record = JSON.stringify(e.data.record);
+        var items = JSON.parse(record);
+        var id = items.id;
+        var url = '@Url.Action("EditStudentsAverage", "Projects")' + '/' + id;
+        window.location.href = url;
+    }
+
+
+    // Search
+    function Search() {
+        grid.reload(
+            {
+                projectName: $("#projectName").val(),
+                projectType: $('#projectType').val(),
+                isApproved: $("#isApproved").prop("checked"),
+                isClosed: $('#isClosed').prop("checked"),
+                page: 1
+            });
+    }
+
+
+</script>
+
+<h2>Edit Students Average</h2>
+<div>
+    <table id="grid" class="table-responsive" data-source="@Url.Action("GetStudentsAverage")"></table>
+</div>

@@ -22,9 +22,9 @@ namespace ProjectManagement.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IEmailService _emailService;
 
-     
+
         public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
-            IEmailService emailService): base(userManager)
+            IEmailService emailService) : base(userManager)
         {
             _context = context;
             _userManager = userManager;
@@ -32,7 +32,7 @@ namespace ProjectManagement.Controllers
             _emailService = emailService;
         }
 
-     
+
         // GET: Projects
         public IActionResult Index()
         {
@@ -40,7 +40,7 @@ namespace ProjectManagement.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetProjects(int? page, int? limit, string sortBy, string direction, string projectName = null , string projectType = null , bool? isApproved = null, bool? isClosed = null)
+        public ActionResult GetProjects(int? page, int? limit, string sortBy, string direction, string projectName = null, string projectType = null, bool? isApproved = null, bool? isClosed = null)
         {
             int total;
             var records = GetJsonData(page, limit, sortBy, direction, out total, projectName, projectType, isApproved, isClosed);
@@ -52,13 +52,13 @@ namespace ProjectManagement.Controllers
 
         public List<Project> GetJsonData(int? page, int? limit, string sortBy, string direction, out int total, string projectName = null, string projectType = null, bool? isApproved = null, bool? isClosed = null)
         {
-           
+
             var records = _context.Projects.Include(p => p.Creator).Include(p => p.Updater)
                 .Select(p => new Project()
                 {
                     Id = p.Id,
                     Name = p.Name,
-                    IsApproved =p.IsApproved,
+                    IsApproved = p.IsApproved,
                     IsClosed = p.IsClosed,
                     MaxApprovedStudents = p.MaxApprovedStudents,
                     ProjectType = p.ProjectType,
@@ -260,7 +260,7 @@ namespace ProjectManagement.Controllers
             await _context.SaveChangesAsync();
             return Json("Success: the project is approved successfully.");
 
-            
+
         }
 
         [HttpPost]
@@ -296,7 +296,7 @@ namespace ProjectManagement.Controllers
             }
 
             var selectedStudents = _context.ProjectStudentChoices
-                .Include(p => p.ApplicationUser)
+                .Include(p => p.ApplicationUser).Where(p => !_context.ProjectStudents.Select(c => c.ApplicationUserId).Contains(p.ApplicationUserId))
                 .Where(p => p.ProjectId == projectId)
                 .OrderByDescending(p => p.ApplicationUser.StudentAvgPreviousYear).Take(project.MaxApprovedStudents);
 
@@ -371,10 +371,10 @@ namespace ProjectManagement.Controllers
             var notApprovedStudents = _context.ProjectStudentChoices
                 .Include(p => p.Project)
                 .Include(p => p.ApplicationUser)
-                .Where(p => !p.IsApproved && p.Project.IsClosed )
+                .Where(p => !p.IsApproved && p.Project.IsClosed)
                 .Select(p => new ApplicationUser()
                 {
-                    
+
                     FirstName = p.ApplicationUser.FirstName,
                     LastName = p.ApplicationUser.LastName,
                     Email = p.ApplicationUser.Email,
@@ -382,7 +382,7 @@ namespace ProjectManagement.Controllers
                     UserName = p.ApplicationUser.UserName
                 });
 
-            var records = notApprovedStudents.Except(approvedStudents);  
+            var records = notApprovedStudents.Except(approvedStudents);
 
             total = records.Count();
 
@@ -414,7 +414,7 @@ namespace ProjectManagement.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteUser(string id)
         {
-            var user = await  _userManager.FindByIdAsync(id);
+            var user = await _userManager.FindByIdAsync(id);
             await _userManager.DeleteAsync(user);
             return Json("Removed");
         }
@@ -443,10 +443,23 @@ namespace ProjectManagement.Controllers
             }
             else
             {
+                if (userRoleViewModel.RoleId== "Professor" || userRoleViewModel.RoleId== "SystemAdmin")
+                {
+                    appUser.IsProfessor = true;
+                    appUser.IsDoctorStudent = false;
+                    appUser.IsBachelorStudent = false;
+                    appUser.IsMasterStudent = false;
+                }
+                else
+                {
+                    appUser.IsProfessor = false;
+                }
+
                 await _userManager.AddToRoleAsync(appUser, userRoleViewModel.RoleId);
                 ViewData["Result"] = "User is assigned successfully to the selected role";
             }
 
+           
             var usersList = _userManager.Users.Where(u => u.UserName != "Admin").ToList();
             ViewData["UserId"] = new SelectList(usersList, "Id", "UserName");
 
@@ -527,17 +540,17 @@ namespace ProjectManagement.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetProject(int? page, int? limit, string sortBy, string direction, string projectName = null, string projectType = null, bool? isApproved = null, bool? isClosed = null)
+        public ActionResult GetReports(int? page, int? limit, string sortBy, string direction, string projectName = null, string projectType = null, bool? isApproved = null, bool? isClosed = null)
         {
             int total;
-            var records = GetJsonDataa(page, limit, sortBy, direction, out total, projectName, projectType, isApproved, isClosed);
+            var records = GetReportsJsonData(page, limit, sortBy, direction, out total, projectName, projectType, isApproved, isClosed);
 
             var result = Json(new { records, total });
 
             return result;
         }
 
-        public List<ProjectStudent> GetJsonDataa(int? page, int? limit, string sortBy, string direction, out int total, string projectName = null, string projectType = null, bool? isApproved = null, bool? isClosed = null)
+        public List<ProjectStudent> GetReportsJsonData(int? page, int? limit, string sortBy, string direction, out int total, string projectName = null, string projectType = null, bool? isApproved = null, bool? isClosed = null)
         {
 
             var records = _context.ProjectStudents.Include(p => p.Creator).Include(p => p.Updater)
@@ -547,8 +560,8 @@ namespace ProjectManagement.Controllers
                     ProjectName = p.Project.Name,
                     StudentName = p.ApplicationUser.FirstName,
                     Professor = (string.IsNullOrEmpty(p.Creator.FirstName) || string.IsNullOrEmpty(p.Creator.LastName)) ? p.Creator.UserName : (p.Creator.FirstName + " " + p.Creator.LastName),
-                    
-                  
+
+
                 })
                 .AsQueryable();
 
@@ -557,7 +570,7 @@ namespace ProjectManagement.Controllers
             {
                 records = records.Where(r => r.ProjectName.ToLower().Contains(projectName.Trim().ToLower()));
             }
-          
+
 
             total = records.Count();
 
@@ -580,7 +593,99 @@ namespace ProjectManagement.Controllers
 
             return records.ToList();
         }
+
+        public IActionResult StudentsAverage()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult GetStudentsAverage(int? page, int? limit, string sortBy, string direction, string projectName = null, string projectType = null, bool? isApproved = null, bool? isClosed = null)
+        {
+            int total;
+            var records = GetStudentsAverage(page, limit, sortBy, direction, out total, projectName, projectType, isApproved, isClosed);
+
+            var result = Json(new { total, records });
+
+            return result;
+        }
+
+        public List<ApplicationUser> GetStudentsAverage(int? page, int? limit, string sortBy, string direction, out int total, string projectName = null, string projectType = null, bool? isApproved = null, bool? isClosed = null)
+        {
+
+            var records = _userManager.Users.Where(p => p.IsProfessor == false)
+                .AsQueryable();
+            total = records.Count();
+
+            if (!string.IsNullOrEmpty(sortBy) && !string.IsNullOrEmpty(direction))
+            {
+                if (direction.Trim().ToLower() == "asc")
+                {
+                    records = SortHelper.OrderBy(records, sortBy);
+                }
+                else
+                {
+                    records = SortHelper.OrderByDescending(records, sortBy);
+                }
+            }
+            if (page.HasValue && limit.HasValue)
+            {
+                int start = (page.Value - 1) * limit.Value;
+                records = records.Skip(start).Take(limit.Value);
+            }
+
+            return records.ToList();
+        }
+
+        // GET: Projects/EditStudentsAverage/5
+        public IActionResult EditStudentsAverage(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var projects = _userManager.Users.FirstOrDefault(p => p.Id == id);
+            if (projects == null)
+            {
+                return NotFound();
+            }
+            return View(projects);
+        }
+
+        // POST: Projects/EditStudentsAverage/5
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditStudentsAverage(string id, [Bind("StudentAvgPreviousYear")] ApplicationUser project)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            //if (id != UserIdentity.Id)
+            //{
+            //    return NotFound();
+            //}
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    user.StudentAvgPreviousYear = project.StudentAvgPreviousYear;
+
+                    IdentityResult result = await _userManager.UpdateAsync(user);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    return NotFound();
+                }
+                return RedirectToAction(nameof(StudentsAverage));
+            }
+            return View(project);
+        }
     }
 
-    
+
+
+
 }

@@ -4280,6 +4280,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
     padding-bottom: 0;
     overflow: visible !important;
   }
+    a:active { background-color: yellow; }
   .navbar-collapse.in {
     overflow-y: visible;
   }
@@ -4307,6 +4308,8 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
     max-height: 200px;
   }
 }
+
+a:active { background-color: yellow; }
 @media (min-width: 768px) {
   .navbar-fixed-top,
   .navbar-fixed-bottom {

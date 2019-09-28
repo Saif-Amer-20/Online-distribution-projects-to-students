@@ -49,7 +49,7 @@
         @{
             if (ViewBag.IsApplied == null)
             {
-                <button class="btn btn-info" id="btnApply" onclick="Apply('@Model.Id')">
+                <button class="btn btn-primary" id="btnApply" onclick="Apply('@Model.Id')">
                     Apply
                 </button>
             }
@@ -135,5 +135,5 @@
 
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index" class="btn btn-danger">Back to List</a>
 </div>

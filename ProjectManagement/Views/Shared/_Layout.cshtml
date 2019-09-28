@@ -48,8 +48,8 @@
               asp-fallback-test-value="absolute"
               asp-suppress-fallback-integrity="true" />
     </environment>
-    
-    
+
+
     <script type="text/javascript">
         function DisplaySuccessMessage(message) {
             $('#divSuccess').text(message);
@@ -71,6 +71,7 @@
         }
 
     </script>
+   
 </head>
 <body>
     <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -86,7 +87,7 @@
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
-                        <a asp-area="" asp-controller="Projects" asp-action="Index" class="navbar-brand"style="color: aliceblue;">Our Project Platform</a>
+                        <a asp-area="" asp-controller="Projects"  asp-action="Index" class="navbar-brand"style="color: aliceblue;">Our Project Platform</a>
                     </div>
                 }
                 else
@@ -105,10 +106,12 @@
                     {
                         if (User.IsInRole("SystemAdmin"))
                         {
-                            <li><a asp-area="" asp-controller="Projects" asp-action="Index"style="color: aliceblue;">Projects</a></li>
+                            <li ><a asp-area="" asp-controller="Projects" asp-action="Index" style="color: aliceblue;">Projects</a></li>
                             <li><a asp-area="" asp-controller="Projects" asp-action="ManageUsers"style="color: aliceblue;">Users</a></li>
                             <li><a asp-area="" asp-controller="Projects" asp-action="NotAllocatedStudents"style="color: aliceblue;">UnAllocated Students</a></li>
                             <li><a asp-area="" asp-controller="Projects" asp-action="Reports"style="color: aliceblue;">Reports</a></li>
+                            <li><a asp-area="" asp-controller="Projects" asp-action="StudentsAverage" style="color: aliceblue;">Students Average</a></li>
+
                         }
                         else if (User.IsInRole("Professor"))
                         {
@@ -229,5 +232,6 @@
     </environment>
 
     @RenderSection("Scripts", required: false)
+
 </body>
 </html>

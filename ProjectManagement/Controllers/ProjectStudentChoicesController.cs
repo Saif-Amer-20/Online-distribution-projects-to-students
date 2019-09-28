@@ -38,14 +38,14 @@ namespace ProjectManagement.Controllers
         {
             var records = _context.ProjectStudentChoices
                 .Include(p => p.Project).ThenInclude(p => p.Creator)
-                .Include(p => p.ApplicationUser)
+                .Include(p => p.ApplicationUser).Where(p=>!_context.ProjectStudents.Select(c=>c.ApplicationUserId).Contains(p.ApplicationUserId))
                 .Select(p => new ProjectStudentChoice()
                 {
                     Id = p.Id,
                     ProjectId = p.ProjectId,
                     CreatedOn = p.CreatedOn,
                     IsApproved = p.IsApproved,
-                    ApprovalSummary = p.IsApproved ? "Accepted" : "Rejected",
+                    ApprovalSummary = p.IsApproved ? "Yes" : "No",
                     ApprovalRejectionDate = p.ApprovalRejectionDate,
                     ProjectName = p.Project.Name,
                     StudentName = (string.IsNullOrEmpty(p.ApplicationUser.FirstName) || string.IsNullOrEmpty(p.ApplicationUser.LastName)) ? p.ApplicationUser.UserName 
@@ -125,7 +125,7 @@ namespace ProjectManagement.Controllers
             ViewData["CreatedBy"] = new SelectList(_context.Users, "Id", "Id");
             ViewData["ProjectId"] = new SelectList(_context.Projects, "Id", "Description");
             ViewData["UpdatedBy"] = new SelectList(_context.Users, "Id", "Id");
-            return View();
+            return RedirectToAction(nameof(Index));
         }
 
         // POST: ProjectStudentChoices/Create
@@ -137,7 +137,7 @@ namespace ProjectManagement.Controllers
             if (ModelState.IsValid)
             {
                 var projectStudents = _context.ProjectStudentChoices.Include(p => p.ApplicationUser).Where( p => p.ApplicationUserId == UserIdentity.Id);
-                if (projectStudents != null && projectStudents.Count() >= 6)
+                if (projectStudents != null && projectStudents.Count() > 6)
                 {
                     return Json("Error: You have reached maximum attempt = 6");
                 }
@@ -147,16 +147,29 @@ namespace ProjectManagement.Controllers
                     return Json("Error: You have have applied on this project previously");
                 }
 
+                var x = _context.ProjectStudentChoices.Include(p => p.ApplicationUser).Where(p => p.ApplicationUserId == UserIdentity.Id).Select(p => p.Sequence).SingleOrDefault();
+                var i = 0;
+                if (x == 0)
+                {
+                    i = 1;
+                }
+                else
+                {
+                    i = x + 1;
+                }
                 var projectStudentChoice = new ProjectStudentChoice
                 {
                     ProjectId = projectId,
                     ApplicationUserId = UserIdentity.Id,
                     CreatedBy = UserIdentity.Id,
-                    CreatedOn = DateTime.Now
+                    CreatedOn = DateTime.Now,
+                    Sequence = i
                 };
                 _context.Add(projectStudentChoice);
                 await _context.SaveChangesAsync();
-                return Json("Success: Applied successfully");
+              //  return Json("Success: Applied successfully");
+                return RedirectToAction(nameof(Index));
+
             }
 
             return Json("Invalid");

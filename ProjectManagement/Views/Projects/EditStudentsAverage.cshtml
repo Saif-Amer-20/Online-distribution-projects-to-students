@@ -1,0 +1,34 @@
+﻿@model ProjectManagement.DataContextModels.ApplicationUser
+
+@{
+    ViewData["Title"] = "Edit Students Average";
+}
+
+<h2>Edit Students Average</h2>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="EditStudentsAverage">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="StudentAvgPreviousYear" class="control-label">Student Average Previous Year</label>
+                <input type="number" asp-for="StudentAvgPreviousYear" class="form-control" />
+                <span asp-validation-for="StudentAvgPreviousYear" class="text-danger"></span>
+                <br />
+                <input type="submit" value="Save" class="btn btn-primary" />
+
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index" class="btn btn-danger">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

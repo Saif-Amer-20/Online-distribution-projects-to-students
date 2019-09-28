@@ -36,30 +36,8 @@ namespace ProjectManagement.Areas.Identity.Pages.Account.Manage
         public string StatusMessage { get; set; }
 
         [BindProperty]
-        public InputModel Input { get; set; }
+        public ApplicationUser Input { get; set; }
 
-        public class InputModel
-        {
-            [Required]
-            [EmailAddress]
-            public string Email { get; set; }
-
-            [Phone]
-            [Display(Name = "Phone number")]
-            public string PhoneNumber { get; set; }
-
-            [Display(Name = "Last Year Grade")]
-            public float StudentAvgPreviousYear { get; set; }
-            [Display(Name = "Professor Specialization")]
-            public string ProfessorSpecialization { get; set; }
-            public string FirstName { get; set; }
-            public string LastName { get; set; }
-            public bool IsMaster { get; set; }
-            public bool IsDoctorat { get; set; }
-            public bool IsBacholer { get; set; }
-            public bool IT { get; set; }
-            public bool CS { get; set; }
-        }
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -75,7 +53,7 @@ namespace ProjectManagement.Areas.Identity.Pages.Account.Manage
 
             Username = userName;
 
-            Input = new InputModel
+            Input = new ApplicationUser()
             {
                 Email = email,
                 PhoneNumber = phoneNumber,
@@ -83,9 +61,9 @@ namespace ProjectManagement.Areas.Identity.Pages.Account.Manage
                 StudentAvgPreviousYear = user.StudentAvgPreviousYear,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                IsBacholer = user.IsBachelorStudent,
-                IsMaster = user.IsMasterStudent,
-                IsDoctorat = user.IsDoctorStudent,
+                IsBachelorStudent = user.IsBachelorStudent,
+                IsMasterStudent = user.IsMasterStudent,
+                IsDoctorStudent = user.IsDoctorStudent,
                 IT = user.IT,
                 CS = user.CS
             };
@@ -129,14 +107,22 @@ namespace ProjectManagement.Areas.Identity.Pages.Account.Manage
                     throw new InvalidOperationException($"Unexpected error occurred setting phone number for user with ID '{userId}'.");
                 }
             }
+           
+            if ((Input.IsDoctorStudent && Input.IsBachelorStudent && Input.IsMasterStudent) || (Input.IsBachelorStudent && Input.IsMasterStudent) ||
+                (Input.IsBachelorStudent && Input.IsDoctorStudent) || (Input.IsDoctorStudent && Input.IsMasterStudent)|| (Input.CS && Input.IT))
+            {
+                StatusMessage = "Wrong : Please chose one level of study and one branch.";
+                return RedirectToPage();
+
+            }
 
             user.ProfessorSpecialization = Input.ProfessorSpecialization;
             user.FirstName = Input.FirstName;
             user.LastName = Input.LastName;
             user.StudentAvgPreviousYear = Input.StudentAvgPreviousYear;
-            user.IsBachelorStudent = Input.IsBacholer;
-            user.IsMasterStudent = Input.IsMaster;
-            user.IsDoctorStudent = Input.IsDoctorat;
+            user.IsBachelorStudent = Input.IsBachelorStudent;
+            user.IsMasterStudent = Input.IsMasterStudent;
+            user.IsDoctorStudent = Input.IsDoctorStudent;
             user.CS = Input.CS;
             user.IT = Input.IT;
 
