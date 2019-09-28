@@ -370,7 +370,7 @@ namespace ProjectManagement.Controllers
 
             var notApprovedStudents = _context.ProjectStudentChoices
                 .Include(p => p.Project)
-                .Include(p => p.ApplicationUser)
+                .Include(p => p.ApplicationUser).Where(p => !_context.ProjectStudents.Select(c => c.ApplicationUserId).Contains(p.ApplicationUserId))
                 .Where(p => !p.IsApproved && p.Project.IsClosed)
                 .Select(p => new ApplicationUser()
                 {
