@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <UserSecretsId>aspnet-ProjectManagement-81918671-F1FC-436F-A1E6-84CD71579354</UserSecretsId>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
@@ -44,12 +45,12 @@
     <None Include="wwwroot\lib\jquery\dist\jquery.min.map" />
   </ItemGroup>
 
-
   <ItemGroup>
+    <PackageReference Include="DinkToPdf" Version="1.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
-    <PackageReference Include="NETCore.MailKit" Version="2.0.0" />
+    <PackageReference Include="NETCore.MailKit" Version="2.0.2" />
   </ItemGroup>
 
 </Project>

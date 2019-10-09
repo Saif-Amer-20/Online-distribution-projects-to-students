@@ -72,15 +72,22 @@
                  type: 'POST',
                  url: '@Url.Action("Complete", "Projects")',
                  data: { 'projectId': id },
-                success: function (data) {
-                    DisplaySuccessMessage('Approved');
-                    $("#btnComplete").attr("disabled", true);
-                    },
-                error: function (data) {
-                    DisplayErrorMessage('');
-                    }
-                });
+                 success: function (data) {
+                     DisplaySuccessMessage('Approved');
+                     $("#btnComplete").attr("disabled", true);
+                 },
+                 error: function (data) {
+                     DisplayErrorMessage('');
+                 }
+         });
     }
+    function printContent(el){
+            var restorepage = document.body.innerHTML;
+            var printcontent = document.getElementById(el).innerHTML;
+            document.body.innerHTML = printcontent;
+            window.print();
+            document.body.innerHTML = restorepage;
+        }
 
 </script>
 <h2>Details</h2>
@@ -113,7 +120,7 @@
         }
 
     </div>
-    <div class="panel-body">
+    <div class="panel-body" id="div1">
         <table class="table table-bordered table-striped">
             <tr>
                 <td style="font-weight: bold; width: 20%;">
@@ -198,12 +205,14 @@
             </tr>
         </table>
     </div>
+    <button class="btn btn-primary" style="margin: 10px"onclick="printContent('div1')">Print Content</button>
 </div>
 <div class="panel panel-default">
     <div class="panel-heading">Project Bids</div>
-    <div class="panel-body">
+    <div class="panel-body" id="div1">
         <table id="gridStudentChoices" data-source="@Url.Action("GetProjects", "ProjectStudentChoices", new { projectId = Model.Id })"></table>
     </div>
+   
 </div>
 <hr />
 <div class="panel panel-default">

@@ -10,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ProjectManagement.DataContextModels;
 using ProjectManagement.Utilities;
+using DinkToPdf.Contracts;
+using DinkToPdf;
 
 namespace ProjectManagement
 {
@@ -31,6 +33,8 @@ namespace ProjectManagement
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+
+            services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(

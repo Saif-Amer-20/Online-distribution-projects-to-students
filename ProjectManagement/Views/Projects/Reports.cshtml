@@ -30,6 +30,14 @@
       
     });
 
+    function printContent(el){
+        var restorepage = document.body.innerHTML;
+        var printcontent = document.getElementById(el).innerHTML;
+        document.body.innerHTML = printcontent;
+        window.print();
+        document.body.innerHTML = restorepage;
+    }
+
 
     
 
@@ -97,8 +105,8 @@
 </div>
 
 <hr />
-<div>
+<div id="div1">
     <table id="grid" class="table-responsive" data-source="@Url.Action("GetReports")"></table>
 </div>
-
+<button class="btn btn-primary" style="margin: 10px" onclick="printContent('div1')">Print Content</button>
 

@@ -22,7 +22,7 @@ namespace ProjectManagement.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IEmailService _emailService;
 
-
+   
         public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
             IEmailService emailService) : base(userManager)
         {
@@ -39,6 +39,10 @@ namespace ProjectManagement.Controllers
             return View();
         }
 
+        public IActionResult NotFound()
+        {
+            return View();
+        }
         [HttpGet]
         public ActionResult GetProjects(int? page, int? limit, string sortBy, string direction, string projectName = null, string projectType = null, bool? isApproved = null, bool? isClosed = null)
         {
@@ -84,7 +88,6 @@ namespace ProjectManagement.Controllers
             {
                 records = records.Where(r => r.IsClosed == isClosed);
             }
-
             total = records.Count();
 
             if (!string.IsNullOrEmpty(sortBy) && !string.IsNullOrEmpty(direction))
@@ -161,10 +164,20 @@ namespace ProjectManagement.Controllers
                 return NotFound();
             }
 
-            var project = await _context.Projects.FindAsync(id);
+            if (User.IsInRole("SystemAdmin"))
+            { 
+                var allProject = await _context.Projects.FindAsync(id);
+                if (allProject == null)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                return View(allProject);
+
+            }
+            var project = await _context.Projects.Where(p => p.Creator.Id == UserIdentity.Id &&p.Id==id).SingleOrDefaultAsync();
             if (project == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(NotFound));
             }
             return View(project);
         }
@@ -453,6 +466,9 @@ namespace ProjectManagement.Controllers
                 else
                 {
                     appUser.IsProfessor = false;
+                     appUser.IsDoctorStudent = false;
+                    appUser.IsBachelorStudent = false;
+                    appUser.IsMasterStudent = false;
                 }
 
                 await _userManager.AddToRoleAsync(appUser, userRoleViewModel.RoleId);
@@ -540,7 +556,7 @@ namespace ProjectManagement.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetReports(int? page, int? limit, string sortBy, string direction, string projectName = null, string projectType = null, bool? isApproved = null, bool? isClosed = null)
+        public  ActionResult GetReports(int? page, int? limit, string sortBy, string direction, string projectName = null, string projectType = null, bool? isApproved = null, bool? isClosed = null)
         {
             int total;
             var records = GetReportsJsonData(page, limit, sortBy, direction, out total, projectName, projectType, isApproved, isClosed);
@@ -558,7 +574,7 @@ namespace ProjectManagement.Controllers
                 {
                     Id = p.Id,
                     ProjectName = p.Project.Name,
-                    StudentName = p.ApplicationUser.FirstName,
+                    StudentName = p.ApplicationUser.FirstName + " " + p.ApplicationUser.LastName,
                     Professor = (string.IsNullOrEmpty(p.Creator.FirstName) || string.IsNullOrEmpty(p.Creator.LastName)) ? p.Creator.UserName : (p.Creator.FirstName + " " + p.Creator.LastName),
 
 
