@@ -78,7 +78,7 @@
         <div class="container">
             @if (_SignInManager.IsSignedIn(User))
             {
-                if (User.IsInRole("SystemAdmin") || User.IsInRole("SystemAdmin"))
+                if (User.IsInRole("SystemAdmin") || User.IsInRole("Professor"))
                 {
                     <div class="navbar-header">
                         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
