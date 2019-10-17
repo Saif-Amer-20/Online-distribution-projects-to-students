@@ -40,7 +40,12 @@ namespace ProjectManagement
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddDefaultIdentity<ApplicationUser>().AddRoles<IdentityRole>()
+            services.AddDefaultIdentity<ApplicationUser>(options =>
+                {
+                    var allowed = options.User.AllowedUserNameCharacters.Normalize()+"ا ب ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ف ق ك ل م ن ه و ي";
+                    options.User.AllowedUserNameCharacters = allowed;
+                    options.User.RequireUniqueEmail = true;
+                }).AddRoles<IdentityRole>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 

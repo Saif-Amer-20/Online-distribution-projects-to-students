@@ -13,7 +13,9 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
-                <label asp-for="StudentAvgPreviousYear" class="control-label">Student Average Previous Year</label>
+                <label>Student Name : </label> <strong>@Html.DisplayFor(m => m.FirstName)  @Html.DisplayFor(m => m.LastName)</strong>
+                <br />
+                <label asp-for="StudentAvgPreviousYear" >Student Rate Previous Year</label>
                 <input type="number" asp-for="StudentAvgPreviousYear" class="form-control" />
                 <span asp-validation-for="StudentAvgPreviousYear" class="text-danger"></span>
                 <br />
@@ -26,7 +28,7 @@
 </div>
 
 <div>
-    <a asp-action="Index" class="btn btn-danger">Back to List</a>
+    <a asp-action="StudentsAverage" class="btn btn-danger">Back to List</a>
 </div>
 
 @section Scripts {

@@ -1,14 +1,21 @@
 ﻿@model ProjectManagement.DataContextModels.Project
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+@using ProjectManagement.Data
+@using ProjectManagement.DataContextModels
 @inject IAuthorizationService AuthorizationService
+@inject ApplicationDbContext _Context;
 @{
     ViewData["Title"] = "Details";
 }
 <script type="text/javascript">
+
+
+
     var gridStudentChoices, gridStudentApproved;
     $(document).ready(function () {
 
-         // Load Grid using json object
+        // Load Grid using json object
         gridStudentChoices = $("#gridStudentChoices").grid({
             dataKey: "id",
             uiLibrary: "bootstrap",
@@ -36,58 +43,58 @@
     });
 
     function Approve(id) {
-         $.ajax({
-                 type: 'POST',
-                 url: '@Url.Action("Approve", "Projects")',
-                 data: { 'projectId': id },
-                success: function (data) {
-                    DisplaySuccessMessage('Approved');
-                    $("#btnApprove").attr("disabled", true);
-                    $("#btnReject").attr("disabled", true);
-                    },
-                error: function (data) {
-                    DisplayErrorMessage('');
-                    }
-                });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Approve", "Projects")',
+            data: { 'projectId': id },
+            success: function (data) {
+                DisplaySuccessMessage('Approved');
+                $("#btnApprove").attr("disabled", true);
+                $("#btnReject").attr("disabled", true);
+            },
+            error: function (data) {
+                DisplayErrorMessage('');
+            }
+        });
     }
 
     function Reject(id) {
-         $.ajax({
-                 type: 'POST',
-                 url: '@Url.Action("Reject", "Projects")',
-                 data: { 'projectId': id },
-                success: function (data) {
-                    DisplaySuccessMessage('Rejected');
-                    $("#btnApprove").attr("disabled", true);
-                    $("#btnReject").attr("disabled", true);
-                    },
-                error: function (data) {
-                    DisplayErrorMessage('');
-                    }
-                });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Reject", "Projects")',
+            data: { 'projectId': id },
+            success: function (data) {
+                DisplaySuccessMessage('Rejected');
+                $("#btnApprove").attr("disabled", true);
+                $("#btnReject").attr("disabled", true);
+            },
+            error: function (data) {
+                DisplayErrorMessage('');
+            }
+        });
     }
 
-      function Complete(id) {
-         $.ajax({
-                 type: 'POST',
-                 url: '@Url.Action("Complete", "Projects")',
-                 data: { 'projectId': id },
-                 success: function (data) {
-                     DisplaySuccessMessage('Approved');
-                     $("#btnComplete").attr("disabled", true);
-                 },
-                 error: function (data) {
-                     DisplayErrorMessage('');
-                 }
-         });
+    function Complete(id) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Complete", "Projects")',
+            data: { 'projectId': id },
+            success: function (data) {
+                DisplaySuccessMessage('Approved');
+                $("#btnComplete").attr("disabled", true);
+            },
+            error: function (data) {
+                DisplayErrorMessage('');
+            }
+        });
     }
     function printContent(el){
-            var restorepage = document.body.innerHTML;
-            var printcontent = document.getElementById(el).innerHTML;
-            document.body.innerHTML = printcontent;
-            window.print();
-            document.body.innerHTML = restorepage;
-        }
+        var restorepage = document.body.innerHTML;
+        var printcontent = document.getElementById(el).innerHTML;
+        document.body.innerHTML = printcontent;
+        window.print();
+        document.body.innerHTML = restorepage;
+    }
 
 </script>
 <h2>Details</h2>
@@ -108,12 +115,22 @@
                         Reject
                     </button>
                 }
-
-                if (Model.IsApproved != null && !Model.IsClosed)
+                if (Model.IsApproved==false)
+                {
+                    <label class="text-danger">This Project is Rejected</label>
+                }
+                if (Model.IsApproved == true && !Model.IsClosed)
                 {
                     <button class="btn btn-success" id="btnComplete" onclick="Complete('@Model.Id')">
                         Allocate
                     </button>
+                }
+            }
+            if (!User.IsInRole("SystemAdmin"))
+            {
+                if (Model.IsApproved == false)
+                {
+                    <label class="text-danger">This Project is Rejected</label>
                 }
             }
 
@@ -201,6 +218,22 @@
                 </td>
                 <td>
                     @Html.DisplayFor(model => model.Description)
+                </td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold">
+                    @Html.DisplayNameFor(model => model.CreatedBy)
+                </td>
+                <td>
+              @{
+                  foreach (var i in _Context.Users)
+                  {
+                      if (i.Id==Model.CreatedBy)
+                      {
+                          <text>@i.FirstName @i.LastName</text>
+                      }
+                  }
+              }
                 </td>
             </tr>
         </table>

@@ -1,34 +1,54 @@
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using ProjectManagement.DataContextModels
+
+@model ProjectManagement.DataContextModels.ApplicationUser 
+
+@inject UserManager<ApplicationUser> UserManager
 
 @{
     ViewData["Title"] = "ManageUsers";
 }
 
 
-
 <script type="text/javascript">
     var grid;
 
 
-    $(document).ready(function () {
+    $(document).ready(function() {
 
-         // Load Grid using json object
+        // Load Grid using json object
         grid = $("#grid").grid({
             dataKey: "id",
             uiLibrary: "bootstrap",
             columns: [
                 { field: "email", title: "Email", sortable: true, width: 60, sortable: true },
                 { field: "userName", title: "User Name", sortable: true, width: 40, sortable: true },
-
-
-                { title: "Roles", field: "Assign", width: 10, type: "icon", icon: "glyphicon-tasks", tooltip: "Assign Roles", events: { "click": Assign } },
-                { title: "Remove", css: ".glyphicon-trash", field: "Delete", width: 10, type: "icon", icon: "glyphicon-remove", tooltip: "Delete", events: { "click": Remove } },
-
+                {
+                    title: "Roles",
+                    field: "Assign",
+                    width: 10,
+                    type: "icon",
+                    icon: "glyphicon-tasks",
+                    tooltip: "Assign Roles",
+                    events: { "click": Assign }
+                },
+                {
+                    title: "Remove",
+                    css: ".glyphicon-trash",
+                    field: "Delete",
+                    width: 10,
+                    type: "icon",
+                    icon: "glyphicon-remove",
+                    tooltip: "Delete",
+                    events: { "click": Remove }
+                },
             ],
             pager: { enable: true, limit: 5, sizes: [2, 5, 10, 20, 40] }
         });
 
         // Delete Post
-        $('#Delete').click(function (e) {
+        $('#Delete').click(function(e) {
 
             e.preventDefault();
             var id = $('#item-to-delete').val();
@@ -40,21 +60,19 @@
                 async: true,
                 processData: false,
                 cache: false,
-                success: function (data) {
+                success: function(data) {
                     alert('User is removed successfully.');
                     $('#deleteModal').modal('hide');
-                        grid.reload();
-                    },
-                error: function (data) {
+                    grid.reload();
+                },
+                error: function(data) {
 
-                    alert('An error has occured while processing your request, please return back to system admin.')
-                    }
+                    alert('An error has occured while processing your request, please return back to system admin.');
+                }
 
-                });
+            });
         });
     });
-
-
 
 
     // Delete Get
@@ -66,8 +84,8 @@
         $('#item-to-delete').val(id);
         $('#deleteModal').modal('show');
     }
-    function Assign(e)
-    {
+
+    function Assign(e) {
         var record = JSON.stringify(e.data.record);
         var items = JSON.parse(record);
         var id = items.id;
@@ -85,11 +103,54 @@
 </p>
 
 
-
 <hr />
-<div>
+@*<div>
     <table id="grid" data-source="@Url.Action("GetUsers")"></table>
-</div>
+</div>*@
+
+@{
+
+    var appUser = UserManager.Users;
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>User Name</th>
+            <th>Role</th>
+            <th>Remove Role</th>
+            <th>Delete User</th>
+        </tr>
+        </thead>
+        <tbody>
+   
+        @foreach (var i in appUser)
+        {
+            
+            @foreach (var role in await UserManager.GetRolesAsync(await UserManager.FindByIdAsync(i.Id)))
+            {
+                <tr>
+                    <td>
+                        @i
+                    </td>
+                    <td>
+                        @role
+                    </td>
+                    <td>
+                        <a asp-action="ViewUserRoles" asp-route-id="@i.Id" class="btn btn-primary">Remove</a>
+                    </td>
+                    <td>
+                        <a asp-action="DeleteUsers" asp-route-id="@i.Id" class="btn btn-primary">Delete</a>
+                    </td>
+                  
+                </tr>
+
+            }
+        }
+        </tbody>
+    
+
+    </table>
+}
 
 
 <input type="hidden" id="item-to-delete" value="-1" />

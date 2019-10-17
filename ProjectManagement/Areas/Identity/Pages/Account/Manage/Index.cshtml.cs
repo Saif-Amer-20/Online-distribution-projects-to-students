@@ -61,6 +61,7 @@ namespace ProjectManagement.Areas.Identity.Pages.Account.Manage
                 StudentAvgPreviousYear = user.StudentAvgPreviousYear,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                ThirdName = user.ThirdName,
                 IsBachelorStudent = user.IsBachelorStudent,
                 IsMasterStudent = user.IsMasterStudent,
                 IsDoctorStudent = user.IsDoctorStudent,
@@ -86,16 +87,16 @@ namespace ProjectManagement.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            var email = await _userManager.GetEmailAsync(user);
-            if (Input.Email != email)
-            {
-                var setEmailResult = await _userManager.SetEmailAsync(user, Input.Email);
-                if (!setEmailResult.Succeeded)
-                {
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    throw new InvalidOperationException($"Unexpected error occurred setting email for user with ID '{userId}'.");
-                }
-            }
+            //var email = await _userManager.GetEmailAsync(user);
+            //if (Input.Email != email)
+            //{
+            //    var setEmailResult = await _userManager.SetEmailAsync(user, Input.Email);
+            //    if (!setEmailResult.Succeeded)
+            //    {
+            //        var userId = await _userManager.GetUserIdAsync(user);
+            //        throw new InvalidOperationException($"Unexpected error occurred setting email for user with ID '{userId}'.");
+            //    }
+            //}
 
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
             if (Input.PhoneNumber != phoneNumber)
@@ -116,9 +117,11 @@ namespace ProjectManagement.Areas.Identity.Pages.Account.Manage
 
             }
 
+            user.UserName = Input.FirstName + "_" + Input.LastName+"_"+Input.ThirdName;
             user.ProfessorSpecialization = Input.ProfessorSpecialization;
             user.FirstName = Input.FirstName;
             user.LastName = Input.LastName;
+            user.ThirdName = Input.ThirdName;
             user.StudentAvgPreviousYear = Input.StudentAvgPreviousYear;
             user.IsBachelorStudent = Input.IsBachelorStudent;
             user.IsMasterStudent = Input.IsMasterStudent;

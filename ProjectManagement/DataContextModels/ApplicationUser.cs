@@ -19,7 +19,7 @@ namespace ProjectManagement.DataContextModels
 
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string SecretNumber { get; set; }
+        public string ThirdName { get; set; }
         public string ProfessorScientificDegree { get; set; }
         public string ProfessorSpecialization { get; set; }
         public bool IsProfessor { get; set; }
@@ -29,5 +29,6 @@ namespace ProjectManagement.DataContextModels
         public float StudentAvgPreviousYear { get; set; }
         public bool IT { get; set; }
         public bool CS { get; set; }
+      //  public List<string> Roles { get; set; }
     }
 }

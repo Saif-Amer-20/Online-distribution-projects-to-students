@@ -56,7 +56,6 @@ namespace ProjectManagement.Controllers
 
         public List<Project> GetJsonData(int? page, int? limit, string sortBy, string direction, out int total, string projectName = null, string projectType = null, bool? isApproved = null, bool? isClosed = null)
         {
-
             var records = _context.Projects.Include(p => p.Creator).Include(p => p.Updater)
                 .Select(p => new Project()
                 {
@@ -228,11 +227,35 @@ namespace ProjectManagement.Controllers
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> Confirmed(int id)
         {
+            if (User.IsInRole("SystemAdmin"))
+            {
+                var projects = await _context.Projects
+                    .Include(p => p.ProjectStudentChoices)
+                    .Include(p => p.ProjectStudents)
+                    .FirstOrDefaultAsync(p => p.Id == id);
+              
+                if (projects.ProjectStudents.Any())
+                {
+                    return Json("Warning: project have exist students approved.");
+                }
+                else if (projects.ProjectStudentChoices.Any())
+                {
+                    return Json("Warning: project has applied students in the queue.");
+                }
+
+                _context.Projects.Remove(projects);
+                await _context.SaveChangesAsync();
+                return Json("Success: Project is removed successfully.");
+
+            }
             var project = await _context.Projects
                 .Include(p => p.ProjectStudentChoices)
-                .Include(p => p.ProjectStudents)
+                .Include(p => p.ProjectStudents).Where(p => p.Creator.Id == UserIdentity.Id && p.Id == id)
                 .FirstOrDefaultAsync(p => p.Id == id);
-
+            if (project==null)
+            {
+                return Json("Warning: You don't have permission to remove this project'.");
+            }
             if (project.ProjectStudents.Any())
             {
                 return Json("Warning: project have exist students approved.");
@@ -424,18 +447,38 @@ namespace ProjectManagement.Controllers
             return View();
         }
 
-        [HttpPost]
+        public async Task<IActionResult> DeleteUsers(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(m => m.Id == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return View(user);
+        }
+        [HttpPost, ActionName("DeleteUser")]
         public async Task<IActionResult> DeleteUser(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
             await _userManager.DeleteAsync(user);
-            return Json("Removed");
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(ManageUsers));
         }
+
+
+      
 
         [HttpGet]
         public ActionResult AssignRole()
         {
-            var usersList = _userManager.Users.ToList();
+            var usersList = _userManager.Users.Where(p => !_context.UserRoles.Select(c => c.UserId).Contains(p.Id)).ToList();
             ViewData["UserId"] = new SelectList(usersList, "Id", "UserName");
 
 
@@ -448,42 +491,47 @@ namespace ProjectManagement.Controllers
         [HttpPost]
         public async Task<IActionResult> AssignRole(UserRoleViewModel userRoleViewModel)
         {
-            var appUser = _userManager.Users.FirstOrDefault(u => u.Id == userRoleViewModel.UserId);
-            var isInRole = await _userManager.IsInRoleAsync(appUser, userRoleViewModel.RoleId);
-            if (isInRole)
+            if (ModelState.IsValid)
             {
-                ViewData["Resultexist"] = "User already have the selected role";
-            }
-            else
-            {
-                if (userRoleViewModel.RoleId== "Professor" || userRoleViewModel.RoleId== "SystemAdmin")
+                var appUser = _userManager.Users.FirstOrDefault(u => u.Id == userRoleViewModel.UserId);
+                var isInRole = await _userManager.IsInRoleAsync(appUser, userRoleViewModel.RoleId);
+                if (isInRole)
                 {
-                    appUser.IsProfessor = true;
-                    appUser.IsDoctorStudent = false;
-                    appUser.IsBachelorStudent = false;
-                    appUser.IsMasterStudent = false;
+                    ViewData["Resultexist"] = "User already have the selected role";
                 }
                 else
                 {
-                    appUser.IsProfessor = false;
-                     appUser.IsDoctorStudent = false;
-                    appUser.IsBachelorStudent = false;
-                    appUser.IsMasterStudent = false;
+                    if (userRoleViewModel.RoleId == "Professor" || userRoleViewModel.RoleId == "SystemAdmin")
+                    {
+                        appUser.IsProfessor = true;
+                        appUser.IsDoctorStudent = false;
+                        appUser.IsBachelorStudent = false;
+                        appUser.IsMasterStudent = false;
+                    }
+                    else
+                    {
+                        appUser.IsProfessor = false;
+                        appUser.IsDoctorStudent = false;
+                        appUser.IsBachelorStudent = false;
+                        appUser.IsMasterStudent = false;
+                    }
+
+                    await _userManager.AddToRoleAsync(appUser, userRoleViewModel.RoleId);
+                    ViewData["Result"] = "User is assigned successfully to the selected role";
                 }
 
-                await _userManager.AddToRoleAsync(appUser, userRoleViewModel.RoleId);
-                ViewData["Result"] = "User is assigned successfully to the selected role";
+
+                var usersList = _userManager.Users.Where(u => u.UserName != "Admin").ToList();
+                ViewData["UserId"] = new SelectList(usersList, "Id", "UserName");
+
+
+                var rolesList = _roleManager.Roles.Where(r => r.Name != "Administrator").ToList();
+                ViewData["RoleId"] = new SelectList(rolesList, "Name", "Name");
+
+                return View(userRoleViewModel);
             }
-
-           
-            var usersList = _userManager.Users.Where(u => u.UserName != "Admin").ToList();
-            ViewData["UserId"] = new SelectList(usersList, "Id", "UserName");
-
-
-            var rolesList = _roleManager.Roles.Where(r => r.Name != "Administrator").ToList();
-            ViewData["RoleId"] = new SelectList(rolesList, "Name", "Name");
-
             return View(userRoleViewModel);
+
         }
 
         public IActionResult ViewUserRoles(string id)
@@ -629,7 +677,7 @@ namespace ProjectManagement.Controllers
         public List<ApplicationUser> GetStudentsAverage(int? page, int? limit, string sortBy, string direction, out int total, string projectName = null, string projectType = null, bool? isApproved = null, bool? isClosed = null)
         {
 
-            var records = _userManager.Users.Where(p => p.IsProfessor == false)
+            var records = _userManager.Users.Where(p => p.IsProfessor == false &&(p.IsBachelorStudent||p.IsMasterStudent||p.IsMasterStudent))
                 .AsQueryable();
             total = records.Count();
 
@@ -699,6 +747,7 @@ namespace ProjectManagement.Controllers
             }
             return View(project);
         }
+       
     }
 
 

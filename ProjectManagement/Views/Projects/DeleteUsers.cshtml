@@ -1,0 +1,27 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model ProjectManagement.DataContextModels.ApplicationUser 
+@{
+    ViewData["Title"] = "User Roles";
+}
+
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+<h4>Project</h4>
+<hr />
+<dl class="dl-horizontal">
+<dt>
+    @Html.DisplayNameFor(model=>model.UserName )
+</dt>
+<dd>
+    @Html.DisplayFor(model => model.UserName)
+</dd>
+</dl>
+</div>
+<form asp-action="DeleteUser">
+    <input type="hidden" asp-for="Id" />
+    <input type="submit" value="Delete" class="btn btn-default" /> 
+    <br/>
+    <br/>
+    <a asp-action="ManageUsers" class="btn btn-danger">Back to User Manager Page</a>
+</form>
