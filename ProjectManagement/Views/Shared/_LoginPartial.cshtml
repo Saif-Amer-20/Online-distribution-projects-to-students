@@ -15,9 +15,9 @@
                         <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)! <br />System Admin</a>
 
                     }
-                    else if (User.IsInRole("Professor"))
+                    else if (User.IsInRole("Supervisor"))
                     {
-                        <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)! <br />Supervisor</a>
+            <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)! <br />Supervisor</a>
 
                     }
                     else if (User.IsInRole("Student"))

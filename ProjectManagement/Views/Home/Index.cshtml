@@ -21,13 +21,13 @@
             <p>
                 <strong>IT for Education and Satisfaction.</strong><br />
                 In order to manage proposed projects by faculty members in the Department of Computer Science at the Faculty of Science,
-                Mustansiriya University by electronic system, then enable the bachelor and graduate students to be informed, review and 
-                determine the choices electronically, so it was necessary to achieve a web based platform according to specific criteria
-                which have been anounced previously.
+                Mustansiriya University by electronic system, then enable the bachelor and postgraduate students to be informed, review 
+                and determine the choices electronically, so it was necessary to achieve a web based platform according to specific
+                criteria which have been anounced previously.
                 <br />
                 @if (!_SignInManager.IsSignedIn(User))
                 {
-                    if (!User.IsInRole("SystemAdmin") || !User.IsInRole("Professor") || !User.IsInRole("Student"))
+                    if (!User.IsInRole("SystemAdmin") || !User.IsInRole("Supervisor") || !User.IsInRole("Student"))
                     {
                         <br />
                         <b>If you don't have account please register form here</b>

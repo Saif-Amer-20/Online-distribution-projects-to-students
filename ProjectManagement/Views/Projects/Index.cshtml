@@ -18,8 +18,8 @@
             columns: [
                 { field: "name", title: "Project Title", sortable: true, width: 40 },
                 { field: "projectType", title: "Project Type", sortable: true, width: 40 },
-                { field: "isApproved", title: "Approved", sortable: true, width: 20, editor: false },
-                { field: "isClosed", title: "Assigned", sortable: true, width: 20, editor: false },
+                { field: "approvalSummary", title: "Approved", sortable: true, width: 20, editor: false },
+                { field: "closerSummary", title: "Assigned", sortable: true, width: 20, editor: false },
                 { field: "maxApprovedStudents", title: "Students Number", sortable: true, width: 30 },
                 { field: "createdBy", title: "Supervisor", sortable: true, width: 40 },
                 { title: "Edit", field: "Edit", width: 10, type: "icon", icon: "glyphicon-pencil", tooltip: "Edit", events: { "click": Edit } },
@@ -52,6 +52,7 @@
                     else if (data.includes('Success')) {
                         $('#divSuccess').text(data);
                         $('#successModal').modal('show');
+                        location.reload();
                         Search();
                     }
                     },

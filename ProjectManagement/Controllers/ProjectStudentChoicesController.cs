@@ -157,11 +157,13 @@ namespace ProjectManagement.Controllers
                 {
                     i = x + 1;
                 }
+
+                var CreatedBy = _context.Projects.Where(p => p.Id == projectId).Select(p=>p.CreatedBy).SingleOrDefault();
                 var projectStudentChoice = new ProjectStudentChoice
                 {
                     ProjectId = projectId,
                     ApplicationUserId = UserIdentity.Id,
-                    CreatedBy = UserIdentity.Id,
+                    CreatedBy = CreatedBy,
                     CreatedOn = DateTime.Now,
                     Sequence = i
                 };

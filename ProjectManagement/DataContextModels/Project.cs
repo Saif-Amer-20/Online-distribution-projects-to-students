@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -41,6 +42,10 @@ namespace ProjectManagement.DataContextModels
         [Required]
         [Display(Name ="Students Count")]
         public int MaxApprovedStudents { get; set; }
+        [NotMapped]
+        public string ApprovalSummary { get; set; }
+        [NotMapped]
+        public string CloserSummary { get; set; }
 
         public virtual ICollection<ProjectStudent> ProjectStudents { get; set; }
         public virtual ICollection<ProjectStudentChoice> ProjectStudentChoices { get; set; }

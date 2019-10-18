@@ -72,7 +72,7 @@ namespace ProjectManagement.Utilities
     public enum Roles
     {
        SystemAdmin,
-       Professor,
+       Supervisor,
        Student
     }
 }

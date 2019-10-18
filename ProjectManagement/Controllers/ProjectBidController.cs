@@ -29,10 +29,10 @@ namespace ProjectManagement.Controllers
 
         [HttpGet]
         public ActionResult GetProjects(int? page, int? limit, string sortBy, string direction, string projectName = null, string projectType = null, 
-            string projectSubType = null, string professor = null)
+            string projectSubType = null, string Professor = null)
         {
             int total;
-            var records = GetJsonData(page, limit, sortBy, direction, out total, projectName, projectType, projectSubType, professor);
+            var records = GetJsonData(page, limit, sortBy, direction, out total, projectName, projectType, projectSubType, Professor);
 
             var result = Json(new { records, total });
 
@@ -40,7 +40,7 @@ namespace ProjectManagement.Controllers
         }
 
         public List<Project> GetJsonData(int? page, int? limit, string sortBy, string direction, out int total, string projectName = null, string projectType = null, 
-            string projectSubType = null, string professor = null)
+            string projectSubType = null, string Professor = null)
         {
             var records = _context.Projects.Include(p => p.Creator).Include(p => p.Updater)
                 .Select(p => new Project()
@@ -49,11 +49,13 @@ namespace ProjectManagement.Controllers
                     Name = p.Name,
                     IsApproved = p.IsApproved,
                     IsClosed = p.IsClosed,
+                    ApprovalSummary = p.IsApproved.Value ? "Yes" : "No",
+                    CloserSummary = p.IsClosed?"Yes":"No",
                     MaxApprovedStudents = p.MaxApprovedStudents,
                     ProjectType = p.ProjectType,
                     ProjectSubType = p.ProjectSubType,
                     CreatedBy = (string.IsNullOrEmpty(p.Creator.FirstName) || string.IsNullOrEmpty(p.Creator.LastName)) ? p.Creator.UserName : (p.Creator.FirstName + " " + p.Creator.LastName)
-                }).Where(p => p.IsApproved.Value && !p.IsClosed)
+                }).Where(p => p.IsApproved.Value && !p.IsClosed && !_context.ProjectStudents.Select(c => c.ApplicationUserId).Contains(UserIdentity.Id))
                 .AsQueryable();
 
             
@@ -69,12 +71,12 @@ namespace ProjectManagement.Controllers
             {
                 records = records.Where(r => r.ProjectSubType.ToLower().Contains(projectSubType.Trim().ToLower()));
             }
-            if (!string.IsNullOrEmpty(professor))
+            if (!string.IsNullOrEmpty(Professor))
             {
-                records = records.Where(r => r.CreatedBy.ToLower().Contains(professor.Trim().ToLower()));
+                records = records.Where(r => r.CreatedBy.ToLower().Contains(Professor.Trim().ToLower()));
             }
 
-
+           
             total = records.Count();
 
             if (!string.IsNullOrEmpty(sortBy) && !string.IsNullOrEmpty(direction))

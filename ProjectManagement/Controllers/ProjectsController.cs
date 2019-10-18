@@ -14,7 +14,7 @@ using ProjectManagement.Utilities;
 
 namespace ProjectManagement.Controllers
 {
-    [Authorize(Roles = "SystemAdmin,Professor")]
+    [Authorize(Roles = "SystemAdmin,Supervisor")]
     public class ProjectsController : BaseController
     {
         private readonly ApplicationDbContext _context;
@@ -64,6 +64,8 @@ namespace ProjectManagement.Controllers
                     Name = p.Name,
                     IsApproved = p.IsApproved,
                     IsClosed = p.IsClosed,
+                    ApprovalSummary = p.IsApproved.Value ? "Yes" : "No",
+                    CloserSummary = p.IsClosed ? "Yes" : "No",
                     MaxApprovedStudents = p.MaxApprovedStudents,
                     ProjectType = p.ProjectType,
                     CreatedBy = (string.IsNullOrEmpty(p.Creator.FirstName) || string.IsNullOrEmpty(p.Creator.LastName)) ? p.Creator.UserName : (p.Creator.FirstName + " " + p.Creator.LastName)
@@ -332,6 +334,8 @@ namespace ProjectManagement.Controllers
                 return Json("Warning: the project is not exist");
             }
 
+
+
             var selectedStudents = _context.ProjectStudentChoices
                 .Include(p => p.ApplicationUser).Where(p => !_context.ProjectStudents.Select(c => c.ApplicationUserId).Contains(p.ApplicationUserId))
                 .Where(p => p.ProjectId == projectId)
@@ -502,7 +506,7 @@ namespace ProjectManagement.Controllers
                 }
                 else
                 {
-                    if (userRoleViewModel.RoleId == "Professor" || userRoleViewModel.RoleId == "SystemAdmin")
+                    if (userRoleViewModel.RoleId == "Supervisor" || userRoleViewModel.RoleId == "SystemAdmin")
                     {
                         appUser.IsProfessor = true;
                         appUser.IsDoctorStudent = false;

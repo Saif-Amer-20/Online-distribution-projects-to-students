@@ -1,5 +1,4 @@
 ﻿@model IEnumerable<ProjectManagement.DataContextModels.Project>
-
 @{
     ViewData["Title"] = "Index";
 }
@@ -7,13 +6,13 @@
 
 <script type="text/javascript">
     var grid;
-   
+
     $(document).ready(function () {
         if ($('#projectType').val() != 'Bachelor') {
             $('#projectSubType').prop("disabled", "disabled");
         }
 
-       
+
          // Load Grid using json object
         grid = $("#grid").grid({
             dataKey: "id",
@@ -21,8 +20,8 @@
             columns: [
                 { field: "name", title: "Name", sortable: true, width: 40 },
                 { field: "projectType", title: "Type", sortable: true, width: 40 },
-                { field: "isApproved", title: "Approved", sortable: true, width: 20 },
-                { field: "isClosed", title: "Closed", sortable: true, width: 20 },
+                { field: "approvalSummary", title: "Approved", sortable: true, width: 20 },
+                { field: "closerSummary", title: "Closed", sortable: true, width: 20 },
                 { field: "maxApprovedStudents", title: "Students", sortable: true, width: 30 },
                 { field: "createdBy", title: "Supervisor", sortable: true, width: 40 },
                 { title: "Details", field: "Details", width: 10, type: "icon", icon: "glyphicon-circle-arrow-right", tooltip: "Details", events: { "click": Details } },
@@ -49,11 +48,11 @@
                 $('#projectSubType').removeAttr("disabled");
             }
         });
-        
+
     });
 
 
- 
+
 
     // Details
        function Details(e) {
@@ -73,7 +72,7 @@
                 projectName: $("#projectName").val(),
                 projectType: $('#projectType').val(),
                 projectSubType: $("#projectSubType").val(),
-                professor: $("#professor").val(),
+                Professor: $("#Professor").val(),
                 page: 1
             });
     }
@@ -118,14 +117,14 @@
                         <option value="Select">Select ...</option>
                         <option value="IT">IT</option>
                         <option value="CS">CS</option>
-           
+
                     </select>
                 </td>
                 <td>
                     <strong>Supervisor</strong>
                 </td>
                 <td>
-                    <input class="form-control" id="professor" />
+                    <input class="form-control" id="Professor" />
                 </td>
 
                 <td>
@@ -141,6 +140,7 @@
 
 <hr />
 <div>
+  
     <table id="grid" data-source="@Url.Action("GetProjects")"></table>
 </div>
 

@@ -51,6 +51,7 @@
                 DisplaySuccessMessage('Approved');
                 $("#btnApprove").attr("disabled", true);
                 $("#btnReject").attr("disabled", true);
+                location.reload();
             },
             error: function (data) {
                 DisplayErrorMessage('');
@@ -67,6 +68,7 @@
                 DisplaySuccessMessage('Rejected');
                 $("#btnApprove").attr("disabled", true);
                 $("#btnReject").attr("disabled", true);
+                location.reload();
             },
             error: function (data) {
                 DisplayErrorMessage('');
@@ -82,11 +84,14 @@
             success: function (data) {
                 DisplaySuccessMessage('Approved');
                 $("#btnComplete").attr("disabled", true);
+
             },
             error: function (data) {
                 DisplayErrorMessage('');
+                alert("Warning: the project is not exist");
             }
         });
+
     }
     function printContent(el){
         var restorepage = document.body.innerHTML;
@@ -103,6 +108,9 @@
         Project Info
 
         @{
+            var selectProject = _Context.ProjectStudentChoices.Where(p=>p.ProjectId==Model.Id&&!_Context.ProjectStudents.Select(c => c.ApplicationUserId).Contains(p.ApplicationUserId)).Select(p => p.ProjectId).SingleOrDefault();
+           
+
             if (User.IsInRole("SystemAdmin"))
             {
 
@@ -115,11 +123,19 @@
                         Reject
                     </button>
                 }
-                if (Model.IsApproved==false)
+
+                else if (Model.IsApproved == true && !Model.IsClosed && selectProject == 0)
+                { <button class="btn btn-success" disabled="disabled" id="btnComplete" onclick="Complete('@Model.Id')">
+                      Allocate
+                  </button>
+                    <label class="text-danger">This Project doesn't has students selected</label>
+                   
+                }
+                else if (Model.IsApproved == false)
                 {
                     <label class="text-danger">This Project is Rejected</label>
                 }
-                if (Model.IsApproved == true && !Model.IsClosed)
+               else if (Model.IsApproved == true && !Model.IsClosed)
                 {
                     <button class="btn btn-success" id="btnComplete" onclick="Complete('@Model.Id')">
                         Allocate
@@ -168,7 +184,7 @@
                     @Html.DisplayNameFor(model => model.IsApproved)
                 </td>
                 <td>
-                    @if (Model.IsApproved == false)
+                    @if (Model.IsApproved == false || Model.IsApproved==null)
                     {
                         <text>No</text>
                     }
@@ -192,7 +208,7 @@
                     @Html.DisplayNameFor(model => model.IsClosed)
                 </td>
                 <td>
-                    @if (Model.IsClosed == false)
+                    @if (Model.IsClosed == false ||Model.IsClosed==null)
                     {
                         <text>No</text>
                     }
