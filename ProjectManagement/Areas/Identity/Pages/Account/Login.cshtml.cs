@@ -72,6 +72,11 @@ namespace ProjectManagement.Areas.Identity.Pages.Account
         {
             returnUrl = returnUrl ?? Url.Content("~/");
             var email = await _userManager.FindByEmailAsync(Input.Email);
+            if (email==null)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return Page();
+            }
             if (ModelState.IsValid)
             {
                 // This doesn't count login failures towards account lockout

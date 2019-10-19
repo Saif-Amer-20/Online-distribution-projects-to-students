@@ -19,7 +19,6 @@
                 { field: "studentName", title: "Student Name", sortable: true, width: 40 },
                 { field: "professor", title: "Supervisor Name", sortable: true, width: 30 },
                 { field: "projectType", title: "Project Type", sortable: true, width: 30 },
-                { field: "projectBranch", title: "Project Branch", sortable: true, width: 30 },
 
 
 
@@ -104,7 +103,7 @@
     </div>
 
     <hr />*@
-<h1>Undergraduate  Reports</h1>
+@*<h1>Undergraduate  Reports</h1>
 <div class="panel panel-default">
     <div id="div1">
         <table id="grid" class="table-responsive" data-source="@Url.Action("GetReports")"></table>
@@ -112,14 +111,13 @@
     <button class="btn btn-primary" style="margin: 10px" onclick="printContent('div1')">Print Content</button>
 </div>
 
-<a asp-action="PostgraduateReports" class="btn btn-primary">Postgraduate Reports</a>
-
-@*<h1>Postgraduate Reports</h1>
+<a class="btn btn-primary" href="./Projects/PostgraduateReport">Postgraduate Report</a>*@
+<h1>Postgraduate Reports</h1>
     <div class="panel panel-default">
-       
+
         <div id="div2">
-            <table id="gridpostgraduate" class="table-responsive" data-source="@Url.Action("GetPostgraduateReports")"></table>
+            <table id="grid" class="table-responsive" data-source="@Url.Action("GetPostgraduateReports")"></table>
         </div>
     <button class="btn btn-primary" style="margin: 10px" onclick="printContent('div2')">Print Content</button>
-    </div>*@
-      
+    </div>
+    <a asp-action="Reports" class="btn btn-primary">Undergraduate Reports</a>

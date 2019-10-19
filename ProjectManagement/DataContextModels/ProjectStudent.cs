@@ -24,7 +24,10 @@ namespace ProjectManagement.DataContextModels
         [NotMapped]
         [Display(Name = "Supervisor")]
         public string Professor { get; set; }
-
+        [NotMapped]
+        public string ProjectType { get; set; }
+        [NotMapped]
+        public string ProjectBranch { get; set; }
         public virtual Project Project { get; set; }
         public virtual ApplicationUser ApplicationUser { get; set; }
     }

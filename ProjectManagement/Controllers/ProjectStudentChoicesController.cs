@@ -43,7 +43,7 @@ namespace ProjectManagement.Controllers
                 {
                     Id = p.Id,
                     ProjectId = p.ProjectId,
-                    CreatedOn = p.CreatedOn,
+                    CreatedOn =p.CreatedOn,
                     IsApproved = p.IsApproved,
                     ApprovalSummary = p.IsApproved ? "Yes" : "No",
                     ApprovalRejectionDate = p.ApprovalRejectionDate,

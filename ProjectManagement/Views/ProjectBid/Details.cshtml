@@ -13,9 +13,7 @@
             uiLibrary: "bootstrap",
             columns: [
                 { field: "studentName", title: "Student Name", sortable: true, width: 40 },
-                { field: "createdOn", title: "CreatedOn", sortable: true, width: 40, format:'YYYY-MM-dd' },
-                { field: "approvalRejectionDate", title: "Approval | Rejection Date", sortable: true, width: 40, format: 'YYYY-MM-dd' },
-                { field: "isApproved", title: "Approved", sortable: true, width: 20 }
+                { field: "createdOn", title: "Selection Date", sortable: true, width: 40 ,formatter:'date', formatoptions:{srcformat:"Y-m-d",newformat:"d/m/Y"}},
 
             ],
             pager: { enable: true, limit: 5, sizes: [2, 5, 10, 20, 40] }

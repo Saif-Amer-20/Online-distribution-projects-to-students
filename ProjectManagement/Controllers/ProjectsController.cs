@@ -409,18 +409,15 @@ namespace ProjectManagement.Controllers
                 });
 
 
-            var notApprovedStudents = _context.ProjectStudentChoices
-                .Include(p => p.Project)
-                .Include(p => p.ApplicationUser).Where(p => !_context.ProjectStudents.Select(c => c.ApplicationUserId).Contains(p.ApplicationUserId))
-                .Where(p => !p.IsApproved && p.Project.IsClosed)
-                .Select(p => new ApplicationUser()
+            var notApprovedStudents = _context.ApplicationUsers
+               .Where(p => !_context.ProjectStudentChoices.Select(c => c.ApplicationUserId).Contains(p.Id)&& _context.UserRoles.Where(c=>c.RoleId== "1f8cd529-9587-48a9-8efe-f9a1ec3b6268").Select(c=>c.UserId).Contains(p.Id)).Select(p => new ApplicationUser()
                 {
 
-                    FirstName = p.ApplicationUser.FirstName,
-                    LastName = p.ApplicationUser.LastName,
-                    Email = p.ApplicationUser.Email,
-                    PhoneNumber = p.ApplicationUser.PhoneNumber,
-                    UserName = p.ApplicationUser.UserName
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    Email = p.Email,
+                    PhoneNumber = p.PhoneNumber,
+                    UserName = p.UserName
                 });
 
             var records = notApprovedStudents.Except(approvedStudents);
@@ -483,7 +480,7 @@ namespace ProjectManagement.Controllers
         [HttpGet]
         public ActionResult AssignRole()
         {
-            var usersList = _userManager.Users.Where(p => !_context.UserRoles.Select(c => c.UserId).Contains(p.Id)).ToList();
+            var usersList = _context.Users.Where(p => !_context.UserRoles.Select(c => c.UserId).Contains(p.Id)).ToList();
             ViewData["UserId"] = new SelectList(usersList, "Id", "UserName");
 
 
@@ -526,7 +523,7 @@ namespace ProjectManagement.Controllers
                 }
 
 
-                var usersList = _userManager.Users.Where(u => u.UserName != "Admin").ToList();
+                var usersList = _context.Users.Where(p => !_context.UserRoles.Select(c => c.UserId).Contains(p.Id)).ToList();
                 ViewData["UserId"] = new SelectList(usersList, "Id", "UserName");
 
 
@@ -621,25 +618,25 @@ namespace ProjectManagement.Controllers
 
         public List<ProjectStudent> GetReportsJsonData(int? page, int? limit, string sortBy, string direction, out int total, string projectName = null, string projectType = null, bool? isApproved = null, bool? isClosed = null)
         {
-
-            var records = _context.ProjectStudents.Include(p => p.Creator).Include(p => p.Updater)
+           
+            var records = _context.ProjectStudents.Include(p => p.Creator).Include(p => p.Updater).Where(p=>p.Project.ProjectType== "Bachelor")
                 .Select(p => new ProjectStudent()
                 {
                     Id = p.Id,
                     ProjectName = p.Project.Name,
                     StudentName = p.ApplicationUser.FirstName + " " + p.ApplicationUser.LastName,
                     Professor = (string.IsNullOrEmpty(p.Creator.FirstName) || string.IsNullOrEmpty(p.Creator.LastName)) ? p.Creator.UserName : (p.Creator.FirstName + " " + p.Creator.LastName),
-
+                    ProjectType = p.Project.ProjectType,
+                    ProjectBranch = p.Project.ProjectSubType
 
                 })
                 .AsQueryable();
 
-
+           
             if (!string.IsNullOrEmpty(projectName))
             {
                 records = records.Where(r => r.ProjectName.ToLower().Contains(projectName.Trim().ToLower()));
             }
-
 
             total = records.Count();
 
@@ -662,7 +659,63 @@ namespace ProjectManagement.Controllers
 
             return records.ToList();
         }
+        public IActionResult PostgraduateReports()
+        {
+            return View();
+        }
+        [HttpGet]
+        public ActionResult GetPostgraduateReports(int? page, int? limit, string sortBy, string direction, string projectName = null, string projectType = null, bool? isApproved = null, bool? isClosed = null)
+        {
+            int total;
+            var records = GetPostgraduateReportsJsonData(page, limit, sortBy, direction, out total, projectName, projectType, isApproved, isClosed);
 
+            var result = Json(new { records, total });
+
+            return result;
+        }
+
+        public List<ProjectStudent> GetPostgraduateReportsJsonData(int? page, int? limit, string sortBy, string direction, out int total, string projectName = null, string projectType = null, bool? isApproved = null, bool? isClosed = null)
+        {
+
+            var records = _context.ProjectStudents.Include(p => p.Creator).Include(p => p.Updater).Where(p => p.Project.ProjectType == "Master"|| p.Project.ProjectType == "Doctorate")
+                .Select(p => new ProjectStudent()
+                {
+                    Id = p.Id,
+                    ProjectName = p.Project.Name,
+                    StudentName = p.ApplicationUser.FirstName + " " + p.ApplicationUser.LastName,
+                    Professor = (string.IsNullOrEmpty(p.Creator.FirstName) || string.IsNullOrEmpty(p.Creator.LastName)) ? p.Creator.UserName : (p.Creator.FirstName + " " + p.Creator.LastName),
+                    ProjectType = p.Project.ProjectType
+
+                })
+                .AsQueryable();
+
+
+            if (!string.IsNullOrEmpty(projectName))
+            {
+                records = records.Where(r => r.ProjectName.ToLower().Contains(projectName.Trim().ToLower()));
+            }
+
+            total = records.Count();
+
+            if (!string.IsNullOrEmpty(sortBy) && !string.IsNullOrEmpty(direction))
+            {
+                if (direction.Trim().ToLower() == "asc")
+                {
+                    records = SortHelper.OrderBy(records, sortBy);
+                }
+                else
+                {
+                    records = SortHelper.OrderByDescending(records, sortBy);
+                }
+            }
+            if (page.HasValue && limit.HasValue)
+            {
+                int start = (page.Value - 1) * limit.Value;
+                records = records.Skip(start).Take(limit.Value);
+            }
+
+            return records.ToList();
+        }
         public IActionResult StudentsAverage()
         {
             return View();
