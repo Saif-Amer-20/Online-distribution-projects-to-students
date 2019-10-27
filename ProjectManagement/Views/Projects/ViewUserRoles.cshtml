@@ -7,9 +7,7 @@
 <script type="text/javascript">
     function UnAssignRole(role) {
 
-        if (!confirm('Sure you want to remove role ' + role)) {
-            return;
-        }
+      
         var id = '@ViewBag.Id';
          $.ajax({
                 contentType: 'application/json; charset=utf-8',

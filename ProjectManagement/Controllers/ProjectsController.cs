@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using FastMember;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 using ProjectManagement.Data;
 using ProjectManagement.DataContextModels;
 using ProjectManagement.Utilities;
@@ -225,6 +228,28 @@ namespace ProjectManagement.Controllers
             return View(project);
         }
 
+        // POST: ProjectStudents/Delete/5
+        [HttpPost, ActionName("UnAllocateProject")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UnAllocateProject(int id)
+        {
+            var projectStudent =  _context.ProjectStudents.Where(p=>p.ProjectId==id);
+            _context.ProjectStudents.RemoveRange(projectStudent);
+
+            var projectStudentChoices = _context.ProjectStudentChoices.Where(p => p.ProjectId == id);
+            _context.ProjectStudentChoices.RemoveRange(projectStudentChoices);
+          var projectEdit=new Project(){Id = id};
+          projectEdit.IsClosed = false;
+          projectEdit.IsApproved = null;
+          projectEdit.ApprovalRejectionDate = DateTime.Parse("0001-01-1");
+          projectEdit.ApprovedRejectedBy = null;
+          _context.Entry(projectEdit).Property("IsClosed").IsModified = true;
+          _context.Entry(projectEdit).Property("IsApproved").IsModified = true;
+          _context.Entry(projectEdit).Property("ApprovalRejectionDate").IsModified = true;
+          _context.Entry(projectEdit).Property("ApprovedRejectedBy").IsModified = true;
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
 
         // POST: Projects/Delete/5
         [HttpPost, ActionName("Delete")]
@@ -605,6 +630,45 @@ namespace ProjectManagement.Controllers
             return View();
         }
 
+        [HttpGet]
+        public ActionResult GetExcelFile()
+        {
+            var records = _context.ProjectStudents.Select(p => new ProjectStudent()
+                {
+                    Id = p.Id,
+                    ProjectName = p.Project.Name,
+                    StudentName = p.ApplicationUser.FirstName + " " + p.ApplicationUser.LastName,
+                    Professor = (string.IsNullOrEmpty(p.Creator.FirstName) || string.IsNullOrEmpty(p.Creator.LastName)) ? p.Creator.UserName : (p.Creator.FirstName + " " + p.Creator.LastName),
+                    ProjectType = p.Project.ProjectType,
+                    ProjectBranch = p.Project.ProjectSubType,
+                    UpdatedBy = p.Updater.FirstName+" "+p.Updater.LastName,
+                    UpdatedOn = p.UpdatedOn.Value,
+                    CreatedOn = p.CreatedOn.Date,
+                    CreatedBy = p.Creator.FirstName+" "+p.Creator.LastName
+
+                })
+                .AsQueryable().ToList();
+            DataTable dataTable=new DataTable();
+            using (var reader = ObjectReader.Create(records))
+            {
+                dataTable.Load(reader);
+            }
+
+            byte[] fileContent;
+            using (var package=new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Reportlist");
+                worksheet.Cells["A1"].LoadFromDataTable(dataTable, true);
+                fileContent = package.GetAsByteArray();
+            }
+
+            if (fileContent==null||fileContent.Length==0)
+            {
+                return null;
+            }
+
+            return File(fileContents: fileContent,contentType:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ,fileDownloadName: "ReportList.xlsx");
+        }
         [HttpGet]
         public  ActionResult GetReports(int? page, int? limit, string sortBy, string direction, string projectName = null, string projectType = null, bool? isApproved = null, bool? isClosed = null)
         {
