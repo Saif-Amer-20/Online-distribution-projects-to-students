@@ -42,6 +42,7 @@ namespace ProjectManagement.Controllers
         public List<Project> GetJsonData(int? page, int? limit, string sortBy, string direction, out int total, string projectName = null, string projectType = null, 
             string projectSubType = null, string Professor = null)
         {
+            var isBac = _context.ApplicationUsers.Where(p => p.Id == UserIdentity.Id).Select(p => p.IsBachelorStudent).SingleOrDefault();
             var records = _context.Projects.Include(p => p.Creator).Include(p => p.Updater)
                 .Select(p => new Project()
                 {
@@ -55,7 +56,7 @@ namespace ProjectManagement.Controllers
                     ProjectType = p.ProjectType,
                     ProjectSubType = p.ProjectSubType,
                     CreatedBy = (string.IsNullOrEmpty(p.Creator.FirstName) || string.IsNullOrEmpty(p.Creator.LastName)) ? p.Creator.UserName : (p.Creator.FirstName + " " + p.Creator.LastName)
-                }).Where(p => p.IsApproved.Value && !p.IsClosed && !_context.ProjectStudents.Select(c => c.ApplicationUserId).Contains(UserIdentity.Id))
+                }).Where(p => p.IsApproved.Value && !p.IsClosed && !_context.ProjectStudents.Select(c => c.ApplicationUserId).Contains(UserIdentity.Id) && isBac==true)
                 .AsQueryable();
 
             

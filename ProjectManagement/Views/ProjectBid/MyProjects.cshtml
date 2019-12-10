@@ -15,7 +15,7 @@
             
 
             ],
-            pager: { enable: true, limit: 5, sizes: [2, 5, 10, 20, 40] }
+            pager: { enable: true, limit: 40, sizes: [2, 5, 10, 20, 40] }
         });
 
         // Load Grid using json object
@@ -48,7 +48,7 @@
 <div class="panel panel-default">
     <div class="panel-heading">Approved Projects</div>
     <div class="panel-body">
-        <table id="gridStudentApproved" data-source="@Url.Action("GetProjects", "ProjectStudents", new { studentId =  ViewBag.StudentId })"></table>
+        <table id="gridStudentApproved" @*data-source="@Url.Action("GetProjects", "ProjectStudents", new { studentId =  ViewBag.StudentId })"*@></table>
     </div>
 </div>
 

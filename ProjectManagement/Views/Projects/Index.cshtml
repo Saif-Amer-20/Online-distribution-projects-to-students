@@ -16,6 +16,7 @@
             dataKey: "id",
             uiLibrary: "bootstrap",
             columns: [
+                { field: "id", title: "Id", sortable: true, width: 40 },
                 { field: "name", title: "Project Title", sortable: true, width: 40 },
                 { field: "projectType", title: "Project Type", sortable: true, width: 40 },
                 { field: "approvalSummary", title: "Approved", sortable: true, width: 20, editor: false },
@@ -26,7 +27,7 @@
                 { title: "Details", field: "Details", width: 10, type: "icon", icon: "glyphicon-circle-arrow-right", tooltip: "Details", events: { "click": Details } },
                 { title: "Remove", css: ".glyphicon-trash", field: "Delete", width: 10, type: "icon", icon: "glyphicon-remove", tooltip: "Delete", events: { "click": Remove } },
             ],
-            pager: { enable: true, limit: 5, sizes: [2, 5, 10, 20, 40] }
+            pager: { enable: true, limit: 40, sizes: [2, 5, 10, 20, 40] }
         });
        
         // Delete Post
@@ -105,13 +106,39 @@
             });
     }
 
+        function Complete() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Complete", "Projects")',
+            success: function (data) {
+                DisplaySuccessMessage('Approved');
+                $("#btnComplete").attr("disabled", true);
+
+            },
+            error: function (data) {
+                DisplayErrorMessage('');
+                alert("Warning: the project is not exist");
+            }
+        });
+
+    }
+
     
 </script>
 <h2>Projects</h2>
 <p>
     <a asp-action="Create" class="btn btn-primary">New</a>
 </p>
-
+@{ 
+    if (User.IsInRole("SystemAdmin"))
+    {
+<p>
+    <button class="btn btn-success" id="btnComplete" onclick="Complete()">
+        Allocate Project 
+    </button>
+</p>
+        }
+    }
 <div>
     <div>
         <table class="table" style="width:70%">
@@ -126,7 +153,7 @@
                     <strong>Project Type</strong>
                 </td>
                 <td>
-                 
+
                     <select id="projectType" name="projectType" class="form-control">
                         <option value="Select">Select ...</option>
                         <option value="Bachelor">Bachelor</option>
@@ -134,7 +161,7 @@
                         <option value="Doctorate">Doctorate</option>
                     </select>
                 </td>
-                
+
 
             </tr>
             <tr>
@@ -146,7 +173,7 @@
                     <input id="isClosed" name="isClosed" type="checkbox" />Assigned
                 </td>
                 <td></td>
-              
+
                 <td>
                     <button type="button" id="btnSearch" class="btn btn-default" onclick="Search();">
                         <span class="glyphicon glyphicon-search"></span>

@@ -81,22 +81,44 @@
                 <textarea id="Description" name="Description" class="form-control">@Model.Description</textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            @{   var selectProject = _Context.ProjectStudents.Where(p=>p.ProjectId==Model.Id).Select(c => c.ProjectId).FirstOrDefault();
+            @{   var selectProject = _Context.Projects.Where(p=> p.IsClosed &&p.Id==Model.Id).Select(p=>p.Id).FirstOrDefault();
+                var selectProjects = _Context.Projects.Where(p=> p.IsClosed==false&&(p.IsApproved==false||p.IsApproved==null) &&p.Id==Model.Id).Select(p=>p.Id).FirstOrDefault();
 
-                if (selectProject == 0)
+                if (User.IsInRole("SystemAdmin"))
                 {
-                    <div class="form-group">
-                        <input type="hidden" asp-for="CreatedOn" />
-                        <input type="hidden" asp-for="CreatedBy" />
-                        <input type="submit" value="Save" class="btn btn-primary" />
-                    </div>
+                    if (selectProject == 0)
+                    {
+                        <div class="form-group">
+                            <input type="hidden" asp-for="CreatedOn" />
+                            <input type="hidden" asp-for="CreatedBy" />
+                            <input type="submit" value="Save" class="btn btn-primary" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-group">
+                            <label class="text-danger">This project was approved on it or allocated, you can't edit it</label>
+                        </div>
+                    }
                 }
                 else
                 {
-                    <div class="form-group">
-                        <label class="text-danger">This project is allocated you can't edit it</label>
-                    </div>
+                    if (selectProjects != 0)
+                    {
+                        <div class="form-group">
+                            <input type="hidden" asp-for="CreatedOn" />
+                            <input type="hidden" asp-for="CreatedBy" />
+                            <input type="submit" value="Save" class="btn btn-primary" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-group">
+                            <label class="text-danger">This project was approved on it or allocated, you can't edit it</label>
+                        </div>
+                    }
                 }
+               
             }
            
         </form>

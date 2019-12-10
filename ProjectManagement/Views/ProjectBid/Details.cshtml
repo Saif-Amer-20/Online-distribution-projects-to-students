@@ -1,4 +1,6 @@
 ﻿@model ProjectManagement.DataContextModels.Project
+@inject ProjectManagement.Data.ApplicationDbContext _Context ;
+
 
 @{
     ViewData["Title"] = "Details";
@@ -16,29 +18,47 @@
                 { field: "createdOn", title: "Selection Date", sortable: true, width: 40 ,formatter:'date', formatoptions:{srcformat:"Y-m-d",newformat:"d/m/Y"}},
 
             ],
-            pager: { enable: true, limit: 5, sizes: [2, 5, 10, 20, 40] }
+            pager: { enable: true, limit: 40, sizes: [2, 5, 10, 20, 40] }
         });
 
-     
+
 
     });
 
+
+
     function Apply(id) {
-          $.ajax({
-                 type: 'POST',
-                 url: '@Url.Action("Create", "ProjectStudentChoices")',
-                 data: { 'projectId': id },
-                success: function (data) {
-                    DisplaySuccessMessage('Applied successfully');
-                    $("#btnApply").attr("disabled", true);
-                    location.reload();
-                    },
-                error: function (data) {
-                    DisplayErrorMessage('');
-                    }
-                });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Create", "ProjectStudentChoices")',
+            data: { 'projectId': id },
+            success: function (data) {
+                DisplaySuccessMessage('Applied successfully');
+                $("#btnApply").attr("disabled", true);
+                location.reload();
+            },
+            error: function (data) {
+                DisplayErrorMessage('');
+            }
+        });
     }
-  
+
+      function Retreat(id) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Retreat", "ProjectStudentChoices")',
+            data: { 'id': id },
+            success: function (data) {
+                DisplaySuccessMessage('Done');
+
+                location.reload();
+            },
+            error: function (data) {
+                DisplayErrorMessage('');
+            }
+        });
+    }
+
 
 </script>
 <h2>Details</h2>
@@ -46,13 +66,24 @@
     <div class="panel-heading">
         Project Info
         @{
+            var selectProject = _Context.ProjectStudents.Where(p => p.ProjectId == Model.Id).FirstOrDefault(c=>c.ProjectId==Model.Id);
             if (ViewBag.IsApplied == null)
             {
                 <button class="btn btn-primary" id="btnApply" onclick="Apply('@Model.Id')">
                     Apply
                 </button>
             }
-        }
+            else
+            {
+                if (selectProject == null)
+                {
+                <button class="btn btn-primary"  onclick="Retreat('@Model.Id')">
+                    Retreat
+                </button>
+                    }
+                }
+
+            }
 
     </div>
     <div class="panel-body">
@@ -87,13 +118,13 @@
                 </td>
                 <td>
                     @if (Model.IsApproved == false || Model.IsApproved==null)
-                    {
-                        <text>No</text>
-                    }
-                    else
-                    {
-                        <text>Yes</text>
-                    }
+                                        {
+                    <text>No</text>
+                                        }
+                                        else
+                                        {
+                    <text>Yes</text>
+                                        }
                     @*@Html.DisplayFor(model => model.IsApproved)*@
                 </td>
             </tr>
@@ -111,13 +142,13 @@
                 </td>
                 <td>
                     @if (Model.IsClosed == false )
-                    {
-                        <text>No</text>
-                    }
-                    else
-                    {
-                        <text>Yes</text>
-                    }
+                                        {
+                    <text>No</text>
+                                        }
+                                        else
+                                        {
+                    <text>Yes</text>
+                                        }
                     @*@Html.DisplayFor(model => model.IsApproved)*@
                 </td>
             </tr>

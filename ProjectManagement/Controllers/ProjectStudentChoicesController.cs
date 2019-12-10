@@ -147,15 +147,25 @@ namespace ProjectManagement.Controllers
                     return Json("Error: You have have applied on this project previously");
                 }
 
-                var x = await _context.ProjectStudentChoices.Where(p => p.ApplicationUserId == UserIdentity.Id).Select(p => p.Sequence).LastOrDefaultAsync();
+                var x = await _context.ProjectStudentChoices.Where(p => p.ApplicationUserId == UserIdentity.Id).Select(p => p.Sequence).ToListAsync();
                 var i = 0;
-                if (x == 0)
+                if (x.Count() == 0)
                 {
                     i = 1;
                 }
                 else
                 {
-                    i = x + 1;
+                    i = 1 + x.Count();
+                    foreach (var k in x)
+                    {
+                        
+                        if (x.Contains(i))
+                        {
+                            i = i - 1;
+                            continue;
+                        }
+                        break;
+                    }
                 }
 
                 var CreatedBy = _context.Projects.Where(p => p.Id == projectId).Select(p=>p.CreatedBy).SingleOrDefault();
@@ -169,8 +179,8 @@ namespace ProjectManagement.Controllers
                 };
                 _context.Add(projectStudentChoice);
                 await _context.SaveChangesAsync();
-              //  return Json("Success: Applied successfully");
-                return RedirectToAction(nameof(Index));
+                  return Json("Success: Applied successfully");
+               // return Json("Success: Project is Choises successfully."); ;
 
             }
 
@@ -272,6 +282,25 @@ namespace ProjectManagement.Controllers
         private bool ProjectStudentChoiceExists(int id)
         {
             return _context.ProjectStudentChoices.Any(e => e.Id == id);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Retreat(int id)
+        {
+            if (User.IsInRole("Student"))
+            {
+                var projects = await _context.ProjectStudentChoices.Where(c => c.ProjectId == id && c.ApplicationUserId == UserIdentity.Id)
+                    .FirstOrDefaultAsync(p => p.ProjectId == id);
+
+
+
+                _context.ProjectStudentChoices.Remove(projects);
+                await _context.SaveChangesAsync();
+                return Json("Success: Project is removed successfully.");
+
+            }
+            return Json("Warning:Project is not removed.");
         }
     }
 }

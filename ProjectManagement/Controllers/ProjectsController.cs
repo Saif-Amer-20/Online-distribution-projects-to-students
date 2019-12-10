@@ -60,6 +60,7 @@ namespace ProjectManagement.Controllers
 
         public List<Project> GetJsonData(int? page, int? limit, string sortBy, string direction, out int total, string projectName = null, string projectType = null, bool? isApproved = null, bool? isClosed = null)
         {
+
             var records = _context.Projects.Include(p => p.Creator).Include(p => p.Updater)
                 .Select(p => new Project()
                 {
@@ -236,20 +237,17 @@ namespace ProjectManagement.Controllers
             var projectStudent =  _context.ProjectStudents.Where(p=>p.ProjectId==id);
             _context.ProjectStudents.RemoveRange(projectStudent);
 
-            var projectStudentChoices = _context.ProjectStudentChoices.Where(p => p.ProjectId == id);
-            _context.ProjectStudentChoices.RemoveRange(projectStudentChoices);
+            
           var projectEdit=new Project(){Id = id};
           projectEdit.IsClosed = false;
-          projectEdit.IsApproved = null;
-          projectEdit.ApprovalRejectionDate = DateTime.Parse("0001-01-1");
-          projectEdit.ApprovedRejectedBy = null;
+      
           _context.Entry(projectEdit).Property("IsClosed").IsModified = true;
-          _context.Entry(projectEdit).Property("IsApproved").IsModified = true;
-          _context.Entry(projectEdit).Property("ApprovalRejectionDate").IsModified = true;
-          _context.Entry(projectEdit).Property("ApprovedRejectedBy").IsModified = true;
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
+       
 
         // POST: Projects/Delete/5
         [HttpPost, ActionName("Delete")]
@@ -349,50 +347,88 @@ namespace ProjectManagement.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Complete(int projectId)
+        public async Task<IActionResult> Complete()
         {
-            var project = await _context.Projects
-                .Include(p => p.ProjectStudentChoices)
-                .FirstOrDefaultAsync(p => p.Id == projectId);
-            if (project == null)
+
+            var select = await _context.ApplicationUsers.Where(p=>p.IsBachelorStudent==true).OrderByDescending(p => p.StudentAvgPreviousYear).ToListAsync();
+
+            foreach (var m in select)
             {
-                return Json("Warning: the project is not exist");
-            }
+                //  var sequenceStudent = _context.ProjectStudentChoices.Where(p => p.ApplicationUserId ==m.Id ).OrderBy(p=>p.Sequence).Select(p => p.Sequence);
 
-
-
-            var selectedStudents = _context.ProjectStudentChoices
-                .Include(p => p.ApplicationUser).Where(p => !_context.ProjectStudents.Select(c => c.ApplicationUserId).Contains(p.ApplicationUserId))
-                .Where(p => p.ProjectId == projectId)
-                .OrderByDescending(p => p.ApplicationUser.StudentAvgPreviousYear).Take(project.MaxApprovedStudents);
-            selectedStudents.OrderBy(p => p.Sequence);
-            var emailAddresses = new List<EmailAddress>();
-            var approvedStudents = new List<ProjectStudent>();
-            foreach (var item in selectedStudents)
-            {
-                item.IsApproved = true;
-                item.ApprovedRejectedBy = UserIdentity.Id;
-                item.ApprovalRejectionDate = DateTime.Now;
-
-                approvedStudents.Add(new ProjectStudent()
+                for (int j = 1; j <= 6; j++)
                 {
-                    ProjectId = item.ProjectId,
-                    ApplicationUserId = item.ApplicationUserId,
-                    CreatedBy = item.Project.CreatedBy,
-                    CreatedOn = DateTime.Now
-                });
+                    var projectMaster = await _context.ProjectStudents.Select(x => x.ApplicationUserId).ToArrayAsync();
+                    var selectStudentInMaster = await _context.ProjectStudents.Where(p => p.ApplicationUserId == m.Id).CountAsync();
+                    if(selectStudentInMaster!=0)
+                    {
+                        break;
+                    }
+                    var selectedStudents = await _context.ProjectStudentChoices.Include(p => p.Project)
+                        .Where(x => x.ApplicationUserId == m.Id
+                         && x.Sequence == j && !projectMaster.Contains(x.ApplicationUserId)).Take(1)
+                        .ToListAsync();
+                    var maxStudent = await _context.Projects.Where(p => p.Id == selectedStudents.Where(c => c.ApplicationUserId == m.Id).Select(c => c.ProjectId).SingleOrDefault()).Select(p => p.MaxApprovedStudents).ToListAsync();
+                    var maxStudentInMaster = await _context.ProjectStudents.Where(p => p.ProjectId == selectedStudents.Where(c => c.ApplicationUserId == m.Id).Select(c => c.ProjectId).SingleOrDefault()).CountAsync();
 
-                emailAddresses.Add(new EmailAddress() { Name = item.ApplicationUser.Email, Address = item.ApplicationUser.Email });
+                    if (selectedStudents.Count == 0)
+                    {
+                        continue;
+                    }
+                    var i = 0;
+                    foreach (var o in maxStudent)
+                    {
+                        if (maxStudentInMaster >= o)
+                        {
+                            i++;
+                        }
+                    }
+                    if(i!=0)
+                    {
+                        continue;
+                    }
+                    foreach (var item in selectedStudents)
+                    {
+                        try
+                        {
+                            var emailAddresses = new List<EmailAddress>();
+                            var approvedStudents = new List<ProjectStudent>();
+                          
+                            item.IsApproved = true;
+                            item.ApprovedRejectedBy = UserIdentity.Id;
+                            item.ApprovalRejectionDate = DateTime.Now;
+                            item.Project.IsClosed = true;
+                            item.Project.ClosingDate = DateTime.Now;
+                            approvedStudents.Add(new ProjectStudent()
+                            {
+                                ProjectId = item.ProjectId,
+                                ApplicationUserId = item.ApplicationUserId,
+                                CreatedBy = item.Project.CreatedBy,
+                                CreatedOn = DateTime.Now
+                            });
+
+                            emailAddresses.Add(new EmailAddress() { Name = item.ApplicationUser.Email, Address = item.ApplicationUser.Email });
+                            _context.UpdateRange(selectedStudents);
+
+
+                            _context.ProjectStudents.AddRange(approvedStudents);
+
+                           
+                        }
+                        catch
+                        {
+                            throw new NoNullAllowedException();
+                        }
+                    }
+                    await _context.SaveChangesAsync();
+                }
             }
 
-            _context.UpdateRange(selectedStudents);
 
-            project.IsClosed = true;
-            project.ClosingDate = DateTime.Now;
-            _context.Update(project);
+            
 
-            await _context.ProjectStudents.AddRangeAsync(approvedStudents);
-            await _context.SaveChangesAsync();
+
+
 
             //await _emailService.Send(new EmailMessage()
             //{
@@ -423,7 +459,7 @@ namespace ProjectManagement.Controllers
         public List<ApplicationUser> GetNotAllocatedStudentsJsonData(int? page, int? limit, string sortBy, string direction, out int total)
         {
             var approvedStudents = _context.ProjectStudents
-                .Include(p => p.ApplicationUser)
+                .Include(p => p.ApplicationUser) 
                 .Select(p => new ApplicationUser()
                 {
                     FirstName = p.ApplicationUser.FirstName,
@@ -433,9 +469,23 @@ namespace ProjectManagement.Controllers
                     UserName = p.ApplicationUser.UserName
                 });
 
+            //var notApprovedStudents1 = _context.ProjectStudentChoices
+            //   .Include(p => p.Project)
+            //   .Include(p => p.ApplicationUser)
+            //   .Where(p => p.IsApproved && p.Project.IsClosed)
+            //   .Select(p => new ApplicationUser()
+            //   {
+
+            //       FirstName = p.ApplicationUser.FirstName,
+            //       LastName = p.ApplicationUser.LastName,
+            //       Email = p.ApplicationUser.Email,
+            //       PhoneNumber = p.ApplicationUser.PhoneNumber,
+            //       UserName = p.ApplicationUser.UserName
+            //   });
 
             var notApprovedStudents = _context.ApplicationUsers
-               .Where(p => !_context.ProjectStudentChoices.Select(c => c.ApplicationUserId).Contains(p.Id)&& _context.UserRoles.Where(c=>c.RoleId== "1f8cd529-9587-48a9-8efe-f9a1ec3b6268").Select(c=>c.UserId).Contains(p.Id)).Select(p => new ApplicationUser()
+               .Where(p => !_context.ProjectStudentChoices.Where(a => a.IsApproved && a.Project.IsClosed).Select(c => c.ApplicationUserId).Contains(p.Id)&&
+               _context.UserRoles.Where(c=>c.RoleId== "1f8cd529-9587-48a9-8efe-f9a1ec3b6268").Select(c=>c.UserId).Contains(p.Id)).Select(p => new ApplicationUser()
                 {
 
                     FirstName = p.FirstName,
@@ -869,6 +919,8 @@ namespace ProjectManagement.Controllers
             }
             return View(project);
         }
+
+      
        
     }
 

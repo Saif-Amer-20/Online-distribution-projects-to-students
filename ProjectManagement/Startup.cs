@@ -42,7 +42,7 @@ namespace ProjectManagement
 
             services.AddDefaultIdentity<ApplicationUser>(options =>
                 {
-                    var allowed = options.User.AllowedUserNameCharacters.Normalize()+"ا ب ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ف ق ك ل م ن ه و ي";
+                    var allowed = options.User.AllowedUserNameCharacters.Normalize()+"ا ب ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ف ق ك ل م ن ه و ي ى ء ؤ ئ ة";
                     options.User.AllowedUserNameCharacters = allowed;
                     options.User.RequireUniqueEmail = true;
                 }).AddRoles<IdentityRole>()
